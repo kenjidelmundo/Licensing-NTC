@@ -6,62 +6,61 @@ namespace LicensingAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class SOAController : ControllerBase
+    public class FeesController : ControllerBase
     {
         private readonly ApplicationDBContext _context;
 
-        public SOAController(ApplicationDBContext context)
+        public FeesController(ApplicationDBContext context)
         {
             _context = context;
         }
 
-        // GET: api/SOA
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(_context.SOAs.ToList());
+            return Ok(_context.Fees.ToList());
         }
 
-        // GET: api/SOA/1
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            var data = _context.SOAs.Find(id);
+            var data = _context.Fees.Find(id);
             if (data == null) return NotFound();
             return Ok(data);
         }
 
-        // POST: api/SOA
         [HttpPost]
-        public IActionResult Post(SOA model)
+        public IActionResult Post(Fees model)
         {
-            _context.SOAs.Add(model);
+            if (!_context.TechServices.Any(t => t.TechServiceId == model.TechServiceId))
+                return BadRequest("Invalid TechServiceId");
+
+            _context.Fees.Add(model);
             _context.SaveChanges();
             return Ok(model);
         }
 
-        // PUT: api/SOA/1
         [HttpPut("{id}")]
-        public IActionResult Put(int id, SOA model)
+        public IActionResult Put(int id, Fees model)
         {
-            var existing = _context.SOAs.Find(id);
+            var existing = _context.Fees.Find(id);
             if (existing == null) return NotFound();
 
-            existing.SOANumber = model.SOANumber;
-            existing.SOADate = model.SOADate;
+            existing.FeeName = model.FeeName;
+            existing.Amount = model.Amount;
+            existing.TechServiceId = model.TechServiceId;
 
             _context.SaveChanges();
             return Ok(existing);
         }
 
-        // DELETE: api/SOA/1
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var data = _context.SOAs.Find(id);
+            var data = _context.Fees.Find(id);
             if (data == null) return NotFound();
 
-            _context.SOAs.Remove(data);
+            _context.Fees.Remove(data);
             _context.SaveChanges();
             return Ok();
         }

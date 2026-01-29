@@ -6,63 +6,62 @@ namespace LicensingAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class TechEODServiceController : ControllerBase
+    public class SUFRateController : ControllerBase
     {
         private readonly ApplicationDBContext _context;
 
-        public TechEODServiceController(ApplicationDBContext context)
+        public SUFRateController(ApplicationDBContext context)
         {
             _context = context;
         }
 
-        // GET: api/TechEODService
+        // GET: api/SUFRate
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(_context.TechEODServices.ToList());
+            return Ok(_context.SUFRates.ToList());
         }
 
-        // GET: api/TechEODService/5
+        // GET: api/SUFRate/5
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var item = _context.TechEODServices.Find(id);
+            var item = _context.SUFRates.Find(id);
             if (item == null) return NotFound();
             return Ok(item);
         }
 
-        // POST: api/TechEODService
+        // POST: api/SUFRate
         [HttpPost]
-        public IActionResult Post(TechEODService model)
+        public IActionResult Post(SUFRate model)
         {
-            _context.TechEODServices.Add(model);
+            _context.SUFRates.Add(model);
             _context.SaveChanges();
             return Ok(model);
         }
 
-        // PUT: api/TechEODService/5
+        // PUT: api/SUFRate/5
         [HttpPut("{id}")]
-        public IActionResult Put(int id, TechEODService model)
+        public IActionResult Put(int id, SUFRate model)
         {
-            var existing = _context.TechEODServices.Find(id);
+            var existing = _context.SUFRates.Find(id);
             if (existing == null) return NotFound();
 
-            existing.ServiceCode = model.ServiceCode;
-            existing.ServiceName = model.ServiceName;
-            existing.Description = model.Description;
+            existing.Rate = model.Rate;
+            existing.EffectiveDate = model.EffectiveDate;
 
             _context.SaveChanges();
             return Ok(existing);
         }
 
-        // DELETE: api/TechEODService/5
+        // DELETE: api/SUFRate/5
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var item = _context.TechEODServices.Find(id);
+            var item = _context.SUFRates.Find(id);
             if (item == null) return NotFound();
 
-            _context.TechEODServices.Remove(item);
+            _context.SUFRates.Remove(item);
             _context.SaveChanges();
             return Ok();
         }
