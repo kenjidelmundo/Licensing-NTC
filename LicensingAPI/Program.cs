@@ -1,30 +1,30 @@
-﻿using LicensingAPI.Data;
-using Microsoft.EntityFrameworkCore;
-
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddDbContext<LicensingDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAngular", p => p
-        .AllowAnyOrigin()
-        .AllowAnyHeader()
-        .AllowAnyMethod());
-});
+﻿var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// ✅ CORS for Angular
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular", p =>
+        p.AllowAnyHeader()
+         .AllowAnyMethod()
+         .AllowCredentials()
+         .SetIsOriginAllowed(origin =>
+             origin == "http://localhost:4200" || origin == "https://localhost:4200"));
+});
 
 var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// app.UseHttpsRedirection(); // enable only if you have HTTPS binding
+app.UseRouting();
+
+// ✅ IMPORTANT: CORS before MapControllers
 app.UseCors("AllowAngular");
 
 app.MapControllers();
+
 app.Run();

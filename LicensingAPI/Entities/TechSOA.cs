@@ -1,32 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Licensing.Entities
 {
-    [Table("tblStatementOfAccount", Schema = "dbo")]
+    [Table("accessSOA", Schema = "dbo")]
     public class TechSOA
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column("SOAID")]
-        public int SOAID { get; set; }
+        [Column("ID")]
+        public int ID { get; set; }
 
-        public int? LicenseID { get; set; }
-        public int? PreparedByID { get; set; }
-        public int? ApprovedByID { get; set; }
-
-        public DateTime? PeriodCoveredFrom { get; set; }
-        public DateTime? PeriodCoveredTo { get; set; }
-
-        public string? Particulars { get; set; }
-        public string? Address { get; set; }
-        public string? RoutingSlip { get; set; }
-
-        public int? ModifiedByID { get; set; }
+        [Column("Date Issued")]
         public DateTime? DateIssued { get; set; }
 
-        public ICollection<TechSOADetails> TechSOADetails { get; set; } = new List<TechSOADetails>();
+        [Column("LICENSEE")]
+        [MaxLength(255)]
+        public string? Licensee { get; set; }
+
+        [Column("Address")]
+        [MaxLength(255)]
+        public string? Address { get; set; }
+
+        [Column("Particulars")]
+        [MaxLength(255)]
+        public string? Particulars { get; set; }
+
+        [Column("Period Covered")]
+        [MaxLength(255)]
+        public string? PeriodCovered { get; set; }
     }
 }

@@ -1,5 +1,5 @@
-﻿using LicensingAPI.Entities;   // TechEODService
-using Licensing.Entities;      // all other entities
+﻿using LicensingAPI.Entities;
+using Licensing.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LicensingAPI.Data
@@ -9,9 +9,6 @@ namespace LicensingAPI.Data
         public LicensingDbContext(DbContextOptions<LicensingDbContext> options)
             : base(options) { }
 
-        // =========================
-        // MAIN TABLES
-        // =========================
         public DbSet<TechSOA> tblStatementOfAccount { get; set; }
         public DbSet<TechSOADetails> tblSOADetails { get; set; }
 
@@ -23,6 +20,8 @@ namespace LicensingAPI.Data
         public DbSet<TechFees> tblFees { get; set; }
         public DbSet<TechSUFRate> SUFRate { get; set; }
         public DbSet<TechService> TechService { get; set; }
+        public DbSet<TechSOA> accessSOA { get; set; }
+
 
         // =========================
         // SCALAR FUNCTION RESULT SETS (KEYLESS)
@@ -46,14 +45,17 @@ namespace LicensingAPI.Data
             // =========================
             modelBuilder.Entity<TechSOA>(entity =>
             {
-                entity.ToTable("tblStatementOfAccount", "dbo");
-                entity.HasKey(x => x.SOAID);
+                entity.ToTable("accessSOA", "dbo");
+                entity.HasKey(x => x.ID);
 
-                // Ensure collection is mapped
-                entity.HasMany(x => x.TechSOADetails)
-                      .WithOne(d => d.StatementOfAccount)
-                      .HasForeignKey(d => d.SOAID)
-                      .OnDelete(DeleteBehavior.Restrict);
+                // map columns with spaces safely
+                entity.Property(x => x.DateIssued).HasColumnName("Date Issued");
+                entity.Property(x => x.Licensee).HasColumnName("LICENSEE");
+                entity.Property(x => x.Address).HasColumnName("Address");
+                entity.Property(x => x.Particulars).HasColumnName("Particulars");
+                entity.Property(x => x.PeriodCovered).HasColumnName("Period Covered");
+
+                // ✅ NO HasMany/Details mapping here
             });
 
             // =========================
