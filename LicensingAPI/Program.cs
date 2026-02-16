@@ -7,20 +7,19 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// ✅ REGISTER DB CONTEXT (THIS FIXES YOUR ERROR)
+// ✅ DB CONTEXT
 builder.Services.AddDbContext<LicensingDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-// ✅ CORS for Angular (kept exactly like yours)
+// ✅ CORS (RELIABLE FOR ANGULAR DEV)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", p =>
-        p.AllowAnyHeader()
+        p.WithOrigins("http://localhost:4200", "https://localhost:4200")
+         .AllowAnyHeader()
          .AllowAnyMethod()
-         .AllowCredentials()
-         .SetIsOriginAllowed(origin =>
-             origin == "http://localhost:4200" || origin == "https://localhost:4200"));
+    );
 });
 
 var app = builder.Build();
@@ -30,7 +29,7 @@ app.UseSwaggerUI();
 
 app.UseRouting();
 
-// ✅ IMPORTANT: CORS before MapControllers
+// ✅ CORS BEFORE MAPCONTROLLERS
 app.UseCors("AllowAngular");
 
 app.MapControllers();

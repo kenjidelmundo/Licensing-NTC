@@ -4,6 +4,7 @@ using LicensingAPI.DTOs;
 using Licensing.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,6 +19,138 @@ namespace LicensingAPI.Controllers
         public TechSOAController(LicensingDbContext context)
         {
             _context = context;
+        }
+
+        // ✅ Period Covered = YEAR-YEAR ONLY (example: 2004-2005)
+        private static string BuildPeriodCoveredYearRange(DateTime? from, DateTime? to)
+        {
+            if (!from.HasValue || !to.HasValue) return null;
+
+            int y1 = from.Value.Year;
+            int y2 = to.Value.Year;
+
+            // if to is earlier than from, still return from-to (or return null if you prefer)
+            if (to.Value.Date < from.Value.Date)
+                return null;
+
+            string text = $"{y1}-{y2}"; // "2004-2005"
+            return text.Length > 255 ? text.Substring(0, 255) : text;
+        }
+
+        private static void ApplyDtoToEntity(TechSOA entity, TechSOAUpsertDto dto)
+        {
+            // BASIC
+            entity.DateIssued = dto.DateIssued;
+            entity.Licensee = dto.Licensee;
+            entity.Address = dto.Address;
+            entity.YourCounterField = dto.YourCounterField;
+            entity.YearMonth = dto.YearMonth;
+            entity.SOASeries = dto.SOASeries;
+
+            // RSL
+            entity.rslPurchase = dto.rslPurchase;
+            entity.rslFillingFee = dto.rslFillingFee;
+            entity.rslPossess = dto.rslPossess;
+            entity.rslConstruction = dto.rslConstruction;
+            entity.rslRadioStation = dto.rslRadioStation;
+            entity.rslInspection = dto.rslInspection;
+            entity.rslSUF = dto.rslSUF;
+            entity.AmnestyFine = dto.AmnestyFine;
+            entity.rslSurcharge = dto.rslSurcharge;
+
+            // PERMIT
+            entity.permitPermitFees = dto.permitPermitFees;
+            entity.permitInspection = dto.permitInspection;
+            entity.permitFillingFee = dto.permitFillingFee;
+            entity.permitSurcharge = dto.permitSurcharge;
+
+            // ROC
+            entity.rocRadioStation = dto.rocRadioStation;
+            entity.rocOperatorFee = dto.rocOperatorFee;
+            entity.rocFillingFee = dto.rocFillingFee;
+            entity.rocSeminarFee = dto.rocSeminarFee;
+            entity.rocSurcharge = dto.rocSurcharge;
+            entity.rocApplicationFee = dto.rocApplicationFee;
+
+            // OTHERS
+            entity.otherRegistration = dto.otherRegistration;
+            entity.otherSRF = dto.otherSRF;
+            entity.otherVerification = dto.otherVerification;
+            entity.otherExam = dto.otherExam;
+            entity.otherClearanceandCertFee = dto.otherClearanceandCertFee;
+            entity.otherModification = dto.otherModification;
+            entity.otherMiscIncome = dto.otherMiscIncome;
+            entity.DST = dto.DST;
+            entity.otherOTHERS = dto.otherOTHERS;
+
+            // TEXT
+            entity.Particulars = dto.Particulars;
+
+            // ✅ PERIOD COVERED = YEAR RANGE (2004-2005)
+            // computed from dto.PeriodFrom + dto.PeriodTo (UI-only)
+            var yearRange = BuildPeriodCoveredYearRange(dto.PeriodFrom, dto.PeriodTo);
+            entity.PeriodCovered = yearRange ?? dto.PeriodCovered; // fallback if you send PeriodCovered manually
+
+            // CHECKBOX FLAGS
+            entity.chkNEW = dto.chkNEW;
+            entity.chkREN = dto.chkREN;
+            entity.chkMOD = dto.chkMOD;
+            entity.chkDUP = dto.chkDUP;
+            entity.chkCO = dto.chkCO;
+            entity.chkCV = dto.chkCV;
+            entity.chkMS = dto.chkMS;
+            entity.chkMA = dto.chkMA;
+            entity.chkROC = dto.chkROC;
+            entity.chkOthers = dto.chkOthers;
+
+            // NOTES
+            entity.chkOtherComment = dto.chkOtherComment;
+            entity.rslSurchargeNote = dto.rslSurchargeNote;
+            entity.permitSurchargeNote = dto.permitSurchargeNote;
+            entity.othersNote = dto.othersNote;
+            entity.rocSurchargeNote = dto.rocSurchargeNote;
+
+            // TOTALS
+            entity.TotalAmount2 = dto.TotalAmount2;
+            entity.TotalAmount = dto.TotalAmount;
+
+            // SIGNATORIES / STATUS
+            entity.PreparedBy = dto.PreparedBy;
+            entity.ApprovedBy = dto.ApprovedBy;
+            entity.chkAssesment = dto.chkAssesment;
+            entity.chkPayment = dto.chkPayment;
+
+            // PAYMENT / OR
+            entity.NoteTobePayed = dto.NoteTobePayed;
+            entity.ORNUMBER = dto.ORNUMBER;
+            entity.ORNUMBER2 = dto.ORNUMBER2;
+            entity.DatePaid = dto.DatePaid;
+            entity.DatePaid2 = dto.DatePaid2;
+            entity.OPSeries = dto.OPSeries;
+            entity.SRFYEAR = dto.SRFYEAR;
+            entity.REMARKSNOTE = dto.REMARKSNOTE;
+            entity.PaymentMode = dto.PaymentMode;
+            entity.CheckNo = dto.CheckNo;
+            entity.PaymentAfter = dto.PaymentAfter;
+            entity.DateOfCheck = dto.DateOfCheck;
+
+            // ACCOUNTING
+            entity.Accounting = dto.Accounting;
+            entity.AccountingPosition = dto.AccountingPosition;
+            entity.ReferenceNo = dto.ReferenceNo;
+
+            // FLAGS
+            entity.isOpenforSOA = dto.isOpenforSOA;
+            entity.isPrintedforSOA = dto.isPrintedforSOA;
+            entity.isOpenforOP = dto.isOpenforOP;
+            entity.isPrintedforOP = dto.isPrintedforOP;
+            entity.isOpenforPayment = dto.isOpenforPayment;
+            entity.isPrintedforPayment = dto.isPrintedforPayment;
+
+            // ROUTING / BRANCH
+            entity.RoutingSlipRefNo = dto.RoutingSlipRefNo;
+            entity.ResponsibilityCenter = dto.ResponsibilityCenter;
+            entity.NameofBranch = dto.NameofBranch;
         }
 
         // ✅ GET: api/TechSOA
@@ -45,7 +178,6 @@ namespace LicensingAPI.Controllers
         }
 
         // ✅ GET: api/TechSOA/payees
-        // For your dropdown (since you have no Payees table)
         [HttpGet("payees")]
         public async Task<IActionResult> GetPayees()
         {
@@ -61,34 +193,14 @@ namespace LicensingAPI.Controllers
             return Ok(payees);
         }
 
-        // ✅ POST: api/TechSOA/header  (kept your route)
-        [HttpPost("header")]
-        public async Task<IActionResult> CreateHeader([FromBody] TechSOAHeaderCreateDto dto)
+        // ✅ POST: api/TechSOA  (Create ALL fields)
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] TechSOAUpsertDto dto)
         {
             if (dto == null) return BadRequest("Body is required.");
 
-            // Build Period Covered text
-            string periodCovered = null;
-            if (dto.PeriodFrom.HasValue || dto.PeriodTo.HasValue || dto.PeriodYears.HasValue)
-            {
-                string from = dto.PeriodFrom?.ToString("yyyy-MM-dd") ?? "";
-                string to = dto.PeriodTo?.ToString("yyyy-MM-dd") ?? "";
-                string yrs = dto.PeriodYears.HasValue ? $" ({dto.PeriodYears.Value} years)" : "";
-
-                periodCovered = $"{from} to {to}{yrs}".Trim();
-
-                if (!string.IsNullOrEmpty(periodCovered) && periodCovered.Length > 255)
-                    periodCovered = periodCovered.Substring(0, 255);
-            }
-
-            var entity = new TechSOA
-            {
-                DateIssued = dto.DateIssued,
-                Licensee = dto.Licensee,
-                Address = dto.Address,
-                Particulars = dto.Particulars,
-                PeriodCovered = periodCovered
-            };
+            var entity = new TechSOA();
+            ApplyDtoToEntity(entity, dto);
 
             _context.accessSOA.Add(entity);
             await _context.SaveChangesAsync();
@@ -96,31 +208,16 @@ namespace LicensingAPI.Controllers
             return CreatedAtAction(nameof(GetById), new { id = entity.ID }, entity);
         }
 
-        // ✅ PUT: api/TechSOA/5
+        // ✅ PUT: api/TechSOA/5  (Update ALL fields)
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateHeader(int id, [FromBody] TechSOAHeaderCreateDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] TechSOAUpsertDto dto)
         {
             if (dto == null) return BadRequest("Body is required.");
 
             var entity = await _context.accessSOA.FirstOrDefaultAsync(x => x.ID == id);
             if (entity == null) return NotFound($"ID {id} not found.");
 
-            string periodCovered = null;
-            if (dto.PeriodFrom.HasValue || dto.PeriodTo.HasValue || dto.PeriodYears.HasValue)
-            {
-                string from = dto.PeriodFrom?.ToString("yyyy-MM-dd") ?? "";
-                string to = dto.PeriodTo?.ToString("yyyy-MM-dd") ?? "";
-                string yrs = dto.PeriodYears.HasValue ? $" ({dto.PeriodYears.Value} years)" : "";
-                periodCovered = $"{from} to {to}{yrs}".Trim();
-                if (!string.IsNullOrEmpty(periodCovered) && periodCovered.Length > 255)
-                    periodCovered = periodCovered.Substring(0, 255);
-            }
-
-            entity.DateIssued = dto.DateIssued;
-            entity.Licensee = dto.Licensee;
-            entity.Address = dto.Address;
-            entity.Particulars = dto.Particulars;
-            entity.PeriodCovered = periodCovered;
+            ApplyDtoToEntity(entity, dto);
 
             await _context.SaveChangesAsync();
             return Ok(entity);
@@ -128,7 +225,7 @@ namespace LicensingAPI.Controllers
 
         // ✅ DELETE: api/TechSOA/5
         [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteHeader(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var entity = await _context.accessSOA.FirstOrDefaultAsync(x => x.ID == id);
             if (entity == null) return NotFound($"ID {id} not found.");
