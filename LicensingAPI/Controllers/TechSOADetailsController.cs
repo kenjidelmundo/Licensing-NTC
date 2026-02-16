@@ -32,130 +32,111 @@ namespace LicensingAPI.Controllers
         }
 
         // GET: api/TechSOADetails/BySOA/5
-        [HttpGet("BySOA/{id}")]
-        public async Task<ActionResult<IEnumerable<TechSOADetails>>> GetSOADetailLists(int id)
+        // NOTE: "id" here is the HEADER ID (dbo.accessSOA.ID)
+        // Your details table still uses SOAID as FK column name, so we filter by SOAID == headerId.
+        [HttpGet("BySOA/{id:int}")]
+        public async Task<IActionResult> GetSOADetailLists(int id)
         {
-            var soadList = await _context.tblSOADetails
+            // ✅ load header from dbo.accessSOA
+            var header = await _context.accessSOA
                 .AsNoTracking()
-                .Include(t => t.StatementOfAccount)
-                .Where(g => g.SOAID == id)
-                .Select(g => new
+                .FirstOrDefaultAsync(x => x.ID == id);
+
+            // ✅ load details from dbo.tblSOADetails
+            var details = await _context.tblSOADetails
+                .AsNoTracking()
+                .Where(d => d.SOAID == id)   // FK column name in details table is SOAID (keep this)
+                .Select(d => new
                 {
-                    g.ID,
-                    g.SOAID,
-                    g.FeeType,
-                    g.Category,
-                    g.FeeName,
-                    g.FilingFee,
-                    g.PurchaseFee,
-                    g.PossessFee,
-                    g.ConstructionPermitFee,
-                    g.ModificationFee,
-                    g.LicenseFee,
-                    g.InspectionFee,
-                    g.DocStampTax,
-                    g.TransportFee,
-                    g.SellTransferFee,
-                    g.DemoPropagateFee,
-                    g.Mode,
-                    g.SUF,
-                    g.SurChargeSUF,
-                    g.SurChargeRSL,
-                    g.StorageFee,
-                    g.AccessByID,
-                    g.ModifiedByID,
-                    StatementOfAccount = g.StatementOfAccount == null ? null : new
-                    {
-                        g.StatementOfAccount.SOAID,
-                        g.StatementOfAccount.LicenseID,
-                        g.StatementOfAccount.PreparedByID,
-                        g.StatementOfAccount.ApprovedByID,
-                        g.StatementOfAccount.PeriodCoveredFrom,
-                        g.StatementOfAccount.PeriodCoveredTo,
-                        g.StatementOfAccount.Particulars,
-                        g.StatementOfAccount.ModifiedByID,
-                        g.StatementOfAccount.DateIssued
-                    },
-                    techSOADetails = (object)null
+                    d.ID,
+                    HeaderID = d.SOAID,      // expose it as HeaderID so you stop thinking SOAID
+                    d.FeeType,
+                    d.Category,
+                    d.FeeName,
+                    d.FilingFee,
+                    d.PurchaseFee,
+                    d.PossessFee,
+                    d.ConstructionPermitFee,
+                    d.ModificationFee,
+                    d.LicenseFee,
+                    d.InspectionFee,
+                    d.DocStampTax,
+                    d.TransportFee,
+                    d.SellTransferFee,
+                    d.DemoPropagateFee,
+                    d.Mode,
+                    d.SUF,
+                    d.SurChargeSUF,
+                    d.SurChargeRSL,
+                    d.StorageFee,
+                    d.AccessByID,
+                    d.ModifiedByID
                 })
                 .ToListAsync();
 
-            if (soadList == null || soadList.Count == 0)
+            return Ok(new
             {
-                return Ok(new List<TechSOADetails>());
-            }
-
-            return Ok(soadList);
+                Header = header,     // returns TechSOA from accessSOA
+                Details = details    // returns list from tblSOADetails
+            });
         }
 
         // GET: api/TechSOADetails/BySOADetails/5
-        [HttpGet("BySOADetails/{id}")]
-        public async Task<ActionResult<IEnumerable<TechSOADetails>>> GetSOADetails(int id)
+        [HttpGet("BySOADetails/{id:int}")]
+        public async Task<IActionResult> GetSOADetails(int id)
         {
-            var soad = await _context.tblSOADetails
+            var detail = await _context.tblSOADetails
                 .AsNoTracking()
-                .Where(g => g.ID == id)
-                .Select(g => new
-                {
-                    g.ID,
-                    g.SOAID,
-                    g.FeeType,
-                    g.Category,
-                    g.FeeName,
-                    g.FilingFee,
-                    g.PurchaseFee,
-                    g.PossessFee,
-                    g.ConstructionPermitFee,
-                    g.ModificationFee,
-                    g.LicenseFee,
-                    g.InspectionFee,
-                    g.DocStampTax,
-                    g.TransportFee,
-                    g.SellTransferFee,
-                    g.DemoPropagateFee,
-                    g.Mode,
-                    g.SUF,
-                    g.SurChargeSUF,
-                    g.SurChargeRSL,
-                    g.StorageFee,
-                    g.AccessByID,
-                    g.ModifiedByID,
-                    StatementOfAccount = g.StatementOfAccount == null ? null : new
-                    {
-                        g.StatementOfAccount.SOAID,
-                        g.StatementOfAccount.LicenseID,
-                        g.StatementOfAccount.PreparedByID,
-                        g.StatementOfAccount.ApprovedByID,
-                        g.StatementOfAccount.PeriodCoveredFrom,
-                        g.StatementOfAccount.PeriodCoveredTo,
-                        g.StatementOfAccount.Particulars,
-                        g.StatementOfAccount.ModifiedByID,
-                        g.StatementOfAccount.DateIssued
-                    },
-                    techSOADetails = (object)null
-                })
-                .ToListAsync();
+                .FirstOrDefaultAsync(d => d.ID == id);
 
-            if (soad == null || soad.Count == 0)
+            if (detail == null) return Ok(new List<TechSOADetails>());
+
+            // get header using FK (SOAID)
+            var header = await _context.accessSOA
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.ID == detail.SOAID);
+
+            // return combined
+            return Ok(new
             {
-                return Ok(new List<TechSOADetails>());
-            }
-
-            return Ok(soad);
+                Header = header,
+                Detail = new
+                {
+                    detail.ID,
+                    HeaderID = detail.SOAID,
+                    detail.FeeType,
+                    detail.Category,
+                    detail.FeeName,
+                    detail.FilingFee,
+                    detail.PurchaseFee,
+                    detail.PossessFee,
+                    detail.ConstructionPermitFee,
+                    detail.ModificationFee,
+                    detail.LicenseFee,
+                    detail.InspectionFee,
+                    detail.DocStampTax,
+                    detail.TransportFee,
+                    detail.SellTransferFee,
+                    detail.DemoPropagateFee,
+                    detail.Mode,
+                    detail.SUF,
+                    detail.SurChargeSUF,
+                    detail.SurChargeRSL,
+                    detail.StorageFee,
+                    detail.AccessByID,
+                    detail.ModifiedByID
+                }
+            });
         }
 
         // PUT: api/TechSOADetails/5
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> PutAcctDefaultTax(int id, [FromBody] TechSOADetails soad)
         {
             if (soad == null) return BadRequest("Body is required.");
+            if (id != soad.ID) return BadRequest("ID mismatch.");
 
-            if (id != soad.ID)
-            {
-                return BadRequest("ID mismatch.");
-            }
-
-            // IMPORTANT: prevent EF from updating SOA header via navigation if client sends it
+            // ✅ CRITICAL: Prevent EF from trying to update the old nav (if your model still has it)
             soad.StatementOfAccount = null;
 
             _context.Entry(soad).State = EntityState.Modified;
@@ -166,14 +147,8 @@ namespace LicensingAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!TechSOADetailsExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                if (!TechSOADetailsExists(id)) return NotFound();
+                throw;
             }
 
             var rec = await _context.tblSOADetails.AsNoTracking().FirstOrDefaultAsync(x => x.ID == id);
@@ -181,14 +156,14 @@ namespace LicensingAPI.Controllers
         }
 
         // DELETE: api/TechSOADetails/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteTechSOADetails(int id)
         {
             var soad = await _context.tblSOADetails.FindAsync(id);
-            if (soad == null)
-            {
-                return NotFound();
-            }
+            if (soad == null) return NotFound();
+
+            // ✅ Prevent EF from touching old nav
+            soad.StatementOfAccount = null;
 
             _context.tblSOADetails.Remove(soad);
             await _context.SaveChangesAsync();

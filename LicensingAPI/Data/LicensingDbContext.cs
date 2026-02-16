@@ -1,5 +1,4 @@
-﻿using LicensingAPI.Entities;
-using Licensing.Entities;
+﻿using Licensing.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LicensingAPI.Data
@@ -9,29 +8,27 @@ namespace LicensingAPI.Data
         public LicensingDbContext(DbContextOptions<LicensingDbContext> options)
             : base(options) { }
 
-        public DbSet<TechSOA> tblStatementOfAccount { get; set; }
+        // ✅ this is the only SOA header table you use
+        public DbSet<TechSOA> accessSOA { get; set; }
+
+        // ✅ KEEP all your other entities below (unchanged)
         public DbSet<TechSOADetails> tblSOADetails { get; set; }
 
         public DbSet<TechCCFormula> CitizenCharterFormula { get; set; }
         public DbSet<TechCCGroup> CitizenCharterGroup { get; set; }
         public DbSet<TechCCStages> CitizenCharterStages { get; set; }
 
-        public DbSet<TechEODService> TechEODService { get; set; }
+        public DbSet<LicensingAPI.Entities.TechEODService> TechEODService { get; set; }
+
         public DbSet<TechFees> tblFees { get; set; }
         public DbSet<TechSUFRate> SUFRate { get; set; }
         public DbSet<TechService> TechService { get; set; }
-        public DbSet<TechSOA> accessSOA { get; set; }
 
-
-        // =========================
-        // SCALAR FUNCTION RESULT SETS (KEYLESS)
-        // =========================
+        // keyless (keep yours if you have them)
         public DbSet<TechFeesNew> TechFeesNew { get; set; }
         public DbSet<TechFeesNewMod> TechFeesNewMod { get; set; }
         public DbSet<TechFeesRen> TechFeesRen { get; set; }
-
         public DbSet<TechFeesSUFRate> TechFeesSUFRate { get; set; }
-
         public DbSet<TechSurcharge> TechSurcharge { get; set; }
         public DbSet<TechFeesSurchargeRSL50> TechFeesSurchargeRSL50 { get; set; }
         public DbSet<TechFeesSurchargeRSL100> TechFeesSurchargeRSL100 { get; set; }
@@ -40,118 +37,74 @@ namespace LicensingAPI.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // =========================
-            // tblStatementOfAccount
-            // =========================
-            modelBuilder.Entity<TechSOA>(entity =>
+            // ✅ OPTIONAL: force map to accessSOA (safe)
+            // Your entity already has [Table("accessSOA")] + [Column(...)]
+            // so this is not required, but it guarantees no wrong table mapping.
+            modelBuilder.Entity<TechSOA>(e =>
             {
-                entity.ToTable("accessSOA", "dbo");
-                entity.HasKey(x => x.ID);
-
-                // map columns with spaces safely
-                entity.Property(x => x.DateIssued).HasColumnName("Date Issued");
-                entity.Property(x => x.Licensee).HasColumnName("LICENSEE");
-                entity.Property(x => x.Address).HasColumnName("Address");
-                entity.Property(x => x.Particulars).HasColumnName("Particulars");
-                entity.Property(x => x.PeriodCovered).HasColumnName("Period Covered");
-
-                // ✅ NO HasMany/Details mapping here
+                e.ToTable("accessSOA", "dbo");
+                e.HasKey(x => x.ID);
             });
 
-            // =========================
-            // tblSOADetails
-            // =========================
-            modelBuilder.Entity<TechSOADetails>(entity =>
+            // ✅ keep your other mappings as-is
+            modelBuilder.Entity<TechSOADetails>(e =>
             {
-                entity.ToTable("tblSOADetails", "dbo");
-                entity.HasKey(x => x.ID);
+                e.ToTable("tblSOADetails", "dbo");
+                e.HasKey(x => x.ID);
             });
 
-            // =========================
-            // tblCitizenCharterGroup
-            // =========================
-            modelBuilder.Entity<TechCCGroup>(entity =>
+            modelBuilder.Entity<LicensingAPI.Entities.TechEODService>(e =>
             {
-                entity.ToTable("tblCitizenCharterGroup", "dbo");
-                entity.HasKey(x => x.CitizenCharterGroupID);
-
-                entity.HasMany(x => x.TechCCFormula)
-                      .WithOne(f => f.CitizenCharterGroup)
-                      .HasForeignKey(f => f.CitizenCharterGroupID)
-                      .OnDelete(DeleteBehavior.Restrict);
+                e.ToTable("tblEODService", "dbo");
+                e.HasKey(x => x.EODservicesID);
             });
 
-            // =========================
-            // tblCitizenCharterFormula
-            // =========================
-            modelBuilder.Entity<TechCCFormula>(entity =>
+            modelBuilder.Entity<TechCCGroup>(e =>
             {
-                entity.ToTable("tblCitizenCharterFormula", "dbo");
-                entity.HasKey(x => x.CitizenCharterComputeFeeID);
+                e.ToTable("tblCitizenCharterGroup", "dbo");
+                e.HasKey(x => x.CitizenCharterGroupID);
 
-                // IMPORTANT: use real DB column names
-                entity.Property(x => x.CitizenCharterComputeFeeID).HasColumnName("CitizenCharterComputeFeeID");
-                entity.Property(x => x.CitizenCharterGroupID).HasColumnName("CitizenCharterGroupID");
-                entity.Property(x => x.Title).HasColumnName("Title");
-                entity.Property(x => x.Formula).HasColumnName("Formula");
-                entity.Property(x => x.Legend).HasColumnName("Legend");
-                entity.Property(x => x.Notes).HasColumnName("Notes");
+                e.HasMany(x => x.TechCCFormula)
+                 .WithOne(f => f.CitizenCharterGroup)
+                 .HasForeignKey(f => f.CitizenCharterGroupID)
+                 .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // =========================
-            // tblCitizenCharterStages
-            // =========================
-            modelBuilder.Entity<TechCCStages>(entity =>
+            modelBuilder.Entity<TechCCFormula>(e =>
             {
-                entity.ToTable("tblCitizenCharterStages", "dbo");
-                entity.HasKey(x => x.StagesID);
+                e.ToTable("tblCitizenCharterFormula", "dbo");
+                e.HasKey(x => x.CitizenCharterComputeFeeID);
             });
 
-            // =========================
-            // tblEODService
-            // =========================
-            modelBuilder.Entity<TechEODService>(entity =>
+            modelBuilder.Entity<TechCCStages>(e =>
             {
-                entity.ToTable("tblEODService", "dbo");
-                entity.HasKey(x => x.EODservicesID);
+                e.ToTable("tblCitizenCharterStages", "dbo");
+                e.HasKey(x => x.StagesID);
             });
 
-            // =========================
-            // tblFees
-            // =========================
-            modelBuilder.Entity<TechFees>(entity =>
+            modelBuilder.Entity<TechFees>(e =>
             {
-                entity.ToTable("tblFees", "dbo");
-                entity.HasKey(x => x.ID);
+                e.ToTable("tblFees", "dbo");
+                e.HasKey(x => x.ID);
             });
 
-            // =========================
-            // tblSUFRate
-            // =========================
-            modelBuilder.Entity<TechSUFRate>(entity =>
+            modelBuilder.Entity<TechSUFRate>(e =>
             {
-                entity.ToTable("tblSUFRate", "dbo");
-                entity.HasKey(x => x.ID);
+                e.ToTable("tblSUFRate", "dbo");
+                e.HasKey(x => x.ID);
             });
 
-            // =========================
-            // tblTechService
-            // =========================
-            modelBuilder.Entity<TechService>(entity =>
+            modelBuilder.Entity<TechService>(e =>
             {
-                entity.ToTable("tblTechService", "dbo");
-                entity.HasKey(x => x.TechServiceID);
+                e.ToTable("tblTechService", "dbo");
+                e.HasKey(x => x.TechServiceID);
             });
 
-            // =========================
-            // KEYLESS FUNCTION RESULTS (NOT TABLES)
-            // =========================
+            // keyless
             modelBuilder.Entity<TechFeesNew>().HasNoKey().ToView(null);
             modelBuilder.Entity<TechFeesNewMod>().HasNoKey().ToView(null);
             modelBuilder.Entity<TechFeesRen>().HasNoKey().ToView(null);
-
             modelBuilder.Entity<TechFeesSUFRate>().HasNoKey().ToView(null);
-
             modelBuilder.Entity<TechSurcharge>().HasNoKey().ToView(null);
             modelBuilder.Entity<TechFeesSurchargeRSL50>().HasNoKey().ToView(null);
             modelBuilder.Entity<TechFeesSurchargeRSL100>().HasNoKey().ToView(null);
