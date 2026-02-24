@@ -21,22 +21,108 @@ namespace LicensingAPI.Controllers
             _context = context;
         }
 
-        // ✅ Period Covered = YEAR-YEAR ONLY (example: 2004-2005)
-        private static string BuildPeriodCoveredYearRange(DateTime? from, DateTime? to)
+        // ✅ DEBUG: confirm what DB your API is using at runtime
+        [HttpGet("dbinfo")]
+        public IActionResult DbInfo()
+        {
+            var conn = _context.Database.GetDbConnection();
+            return Ok(new { DataSource = conn.DataSource, Database = conn.Database });
+        }
+
+        // ✅ Period Covered = FULL DATE RANGE (example: 20/02/2026-20/06/2026)
+        private static string BuildPeriodCoveredFullDateRange(DateTime? from, DateTime? to)
         {
             if (!from.HasValue || !to.HasValue) return null;
+            if (to.Value.Date < from.Value.Date) return null;
 
-            int y1 = from.Value.Year;
-            int y2 = to.Value.Year;
-
-            // if to is earlier than from, still return from-to (or return null if you prefer)
-            if (to.Value.Date < from.Value.Date)
-                return null;
-
-            string text = $"{y1}-{y2}"; // "2004-2005"
+            var text = $"{from.Value:dd/MM/yyyy}-{to.Value:dd/MM/yyyy}";
             return text.Length > 255 ? text.Substring(0, 255) : text;
         }
 
+        // ==========================================================
+        // ✅ CITIZEN CHARTER LOOKUP HELPERS
+        // IMPORTANT: Adjust these 2 methods to your table columns
+        // ==========================================================
+        private static string GetCode(TechCCFormula row)
+        {
+            // TODO: CHANGE THIS to your actual "code/name" column
+            // Examples:
+            // return row.Code;
+            // return row.FormulaCode;
+            // return row.FormulaName;
+            return row.Code; // <-- adjust if not existing
+        }
+
+        private static decimal GetAmount(TechCCFormula row)
+        {
+            // TODO: CHANGE THIS to your actual "amount/value" column
+            // Examples:
+            // return row.Amount;
+            // return row.Value;
+            // return row.Rate;
+            return Convert.ToDecimal(row.Amount); // <-- adjust if not existing
+        }
+
+        private async Task<decimal> CC(string code)
+        {
+            // pull from DB each call (ok for now; later you can cache)
+            var rows = await _context.CitizenCharterFormula.AsNoTracking().ToListAsync();
+            var r = rows.FirstOrDefault(x => (GetCode(x) ?? "").Trim().ToUpper() == code.Trim().ToUpper());
+            return r == null ? 0m : GetAmount(r);
+        }
+
+        // ✅ GET: api/TechSOA/cc/roc?mode=NEW|RENEWAL|MODIFICATION
+        [HttpGet("cc/roc")]
+        public async Task<IActionResult> GetRocCitizenCharter([FromQuery] string mode = "NEW")
+        {
+            try
+            {
+                // You store these codes in CitizenCharterFormula table:
+                var result = new
+                {
+                    mode = (mode ?? "NEW").ToUpper(),
+
+                    rocPerYear = await CC("ROC_YR"),
+                    rocOperator = await CC("ROC_OPERATOR"),
+                    rocApplication = await CC("ROC_APPLICATION"),
+                    rocFiling = await CC("ROC_FILING"),
+                    rocSeminar = await CC("ROC_SEMINAR"),
+                    rocSurcharge = await CC("ROC_SUR"),
+                    rocModification = await CC("ROC_MOD"),
+                    dst = await CC("DST"),
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.ToString());
+            }
+        }
+
+        // ✅ GET: api/TechSOA/cc/amateur
+        [HttpGet("cc/amateur")]
+        public async Task<IActionResult> GetAmateurCitizenCharter()
+        {
+            try
+            {
+                var result = new
+                {
+                    posPerUnit = await CC("AM_POS_UNIT"),
+                    dst = await CC("DST"),
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.ToString());
+            }
+        }
+
+        // ==========================================================
+        // ✅ APPLY DTO
+        // ==========================================================
         private static void ApplyDtoToEntity(TechSOA entity, TechSOAUpsertDto dto)
         {
             // BASIC
@@ -86,10 +172,9 @@ namespace LicensingAPI.Controllers
             // TEXT
             entity.Particulars = dto.Particulars;
 
-            // ✅ PERIOD COVERED = YEAR RANGE (2004-2005)
-            // computed from dto.PeriodFrom + dto.PeriodTo (UI-only)
-            var yearRange = BuildPeriodCoveredYearRange(dto.PeriodFrom, dto.PeriodTo);
-            entity.PeriodCovered = yearRange ?? dto.PeriodCovered; // fallback if you send PeriodCovered manually
+            // ✅ PERIOD COVERED (FULL DATE RANGE)
+            var fullRange = BuildPeriodCoveredFullDateRange(dto.PeriodFrom, dto.PeriodTo);
+            entity.PeriodCovered = fullRange ?? dto.PeriodCovered;
 
             // CHECKBOX FLAGS
             entity.chkNEW = dto.chkNEW;
@@ -157,83 +242,102 @@ namespace LicensingAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var rows = await _context.accessSOA
-                .AsNoTracking()
-                .OrderByDescending(x => x.ID)
-                .ToListAsync();
+            try
+            {
+                var rows = await _context.accessSOA
+                    .AsNoTracking()
+                    .OrderByDescending(x => x.ID)
+                    .ToListAsync();
 
-            return Ok(rows);
+                return Ok(rows);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.ToString());
+            }
         }
 
         // ✅ GET: api/TechSOA/5
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var row = await _context.accessSOA
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.ID == id);
+            try
+            {
+                var row = await _context.accessSOA
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.ID == id);
 
-            if (row == null) return NotFound($"ID {id} not found.");
-            return Ok(row);
+                if (row == null) return NotFound($"ID {id} not found.");
+                return Ok(row);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.ToString());
+            }
         }
 
-        // ✅ GET: api/TechSOA/payees
-        [HttpGet("payees")]
-        public async Task<IActionResult> GetPayees()
-        {
-            var payees = await _context.accessSOA
-                .AsNoTracking()
-                .Select(x => x.Licensee)
-                .Where(x => x != null && x.Trim() != "")
-                .Select(x => x.Trim())
-                .Distinct()
-                .OrderBy(x => x)
-                .ToListAsync();
-
-            return Ok(payees);
-        }
-
-        // ✅ POST: api/TechSOA  (Create ALL fields)
+        // ✅ POST: api/TechSOA
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] TechSOAUpsertDto dto)
         {
             if (dto == null) return BadRequest("Body is required.");
 
-            var entity = new TechSOA();
-            ApplyDtoToEntity(entity, dto);
+            try
+            {
+                var entity = new TechSOA();
+                ApplyDtoToEntity(entity, dto);
 
-            _context.accessSOA.Add(entity);
-            await _context.SaveChangesAsync();
+                _context.accessSOA.Add(entity);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = entity.ID }, entity);
+                return CreatedAtAction(nameof(GetById), new { id = entity.ID }, entity);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.ToString());
+            }
         }
 
-        // ✅ PUT: api/TechSOA/5  (Update ALL fields)
+        // ✅ PUT: api/TechSOA/5
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] TechSOAUpsertDto dto)
         {
             if (dto == null) return BadRequest("Body is required.");
 
-            var entity = await _context.accessSOA.FirstOrDefaultAsync(x => x.ID == id);
-            if (entity == null) return NotFound($"ID {id} not found.");
+            try
+            {
+                var entity = await _context.accessSOA.FirstOrDefaultAsync(x => x.ID == id);
+                if (entity == null) return NotFound($"ID {id} not found.");
 
-            ApplyDtoToEntity(entity, dto);
+                ApplyDtoToEntity(entity, dto);
 
-            await _context.SaveChangesAsync();
-            return Ok(entity);
+                await _context.SaveChangesAsync();
+                return Ok(entity);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.ToString());
+            }
         }
 
         // ✅ DELETE: api/TechSOA/5
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var entity = await _context.accessSOA.FirstOrDefaultAsync(x => x.ID == id);
-            if (entity == null) return NotFound($"ID {id} not found.");
+            try
+            {
+                var entity = await _context.accessSOA.FirstOrDefaultAsync(x => x.ID == id);
+                if (entity == null) return NotFound($"ID {id} not found.");
 
-            _context.accessSOA.Remove(entity);
-            await _context.SaveChangesAsync();
+                _context.accessSOA.Remove(entity);
+                await _context.SaveChangesAsync();
 
-            return Ok();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.ToString());
+            }
         }
     }
 }

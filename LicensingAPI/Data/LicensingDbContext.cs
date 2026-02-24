@@ -32,6 +32,10 @@ namespace LicensingAPI.Data
         public DbSet<TechSurcharge> TechSurcharge { get; set; }
         public DbSet<TechFeesSurchargeRSL50> TechFeesSurchargeRSL50 { get; set; }
         public DbSet<TechFeesSurchargeRSL100> TechFeesSurchargeRSL100 { get; set; }
+        public DbSet<Licensing.Entities.AddrProvince> AddrProvinces { get; set; }
+        public DbSet<Licensing.Entities.AddrMunicipality> AddrMunicipalities { get; set; }
+        public DbSet<Licensing.Entities.AddrBarangay> AddrBarangays { get; set; }
+        public DbSet<Licensing.Entities.AddrRegion> AddrRegions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -99,6 +103,22 @@ namespace LicensingAPI.Data
                 e.ToTable("tblTechService", "dbo");
                 e.HasKey(x => x.TechServiceID);
             });
+
+            base.OnModelCreating(modelBuilder);
+
+            // Province -> Municipalities
+            modelBuilder.Entity<AddrProvince>()
+                .HasMany(p => p.Municipalities)
+                .WithOne(m => m.Province)
+                .HasForeignKey(m => m.ProvinceId)
+                .HasPrincipalKey(p => p.ProvinceId);
+
+            // Municipality -> Barangays
+            modelBuilder.Entity<AddrMunicipality>()
+                .HasMany(m => m.Barangays)
+                .WithOne(b => b.Municipality)
+                .HasForeignKey(b => b.MunicipalityId)
+                .HasPrincipalKey(m => m.MunicipalityId);
 
             // keyless
             modelBuilder.Entity<TechFeesNew>().HasNoKey().ToView(null);
