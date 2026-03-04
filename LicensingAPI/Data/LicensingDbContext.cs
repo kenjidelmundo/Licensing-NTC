@@ -32,18 +32,18 @@ namespace LicensingAPI.Data
         public DbSet<TechSurcharge> TechSurcharge { get; set; }
         public DbSet<TechFeesSurchargeRSL50> TechFeesSurchargeRSL50 { get; set; }
         public DbSet<TechFeesSurchargeRSL100> TechFeesSurchargeRSL100 { get; set; }
-        public DbSet<Licensing.Entities.AddrProvince> AddrProvinces { get; set; }
-        public DbSet<Licensing.Entities.AddrMunicipality> AddrMunicipalities { get; set; }
-        public DbSet<Licensing.Entities.AddrBarangay> AddrBarangays { get; set; }
-        public DbSet<Licensing.Entities.AddrRegion> AddrRegions { get; set; }
+
+        // ✅ Address tables
+        public DbSet<AddrProvince> AddrProvinces { get; set; }
+        public DbSet<AddrMunicipality> AddrMunicipalities { get; set; }
+        public DbSet<AddrBarangay> AddrBarangays { get; set; }
+        public DbSet<AddrRegion> AddrRegions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             // ✅ OPTIONAL: force map to accessSOA (safe)
-            // Your entity already has [Table("accessSOA")] + [Column(...)]
-            // so this is not required, but it guarantees no wrong table mapping.
             modelBuilder.Entity<TechSOA>(e =>
             {
                 e.ToTable("accessSOA", "dbo");
@@ -104,23 +104,67 @@ namespace LicensingAPI.Data
                 e.HasKey(x => x.TechServiceID);
             });
 
-            base.OnModelCreating(modelBuilder);
+            // ============================
+            // ✅ ADDRESS ONLY (NO OTHER CHANGES)
+            // ============================
+
+            // Force exact table names/columns (safe even with [Table]/[Column])
+            modelBuilder.Entity<AddrProvince>(e =>
+            {
+                e.ToTable("dbo_addr_province", "dbo");
+                e.HasKey(x => x.ProvinceId);
+                e.Property(x => x.ProvinceId).HasColumnName("province_id");
+                e.Property(x => x.RegionId).HasColumnName("region_id");
+                e.Property(x => x.ProvinceName).HasColumnName("province_name");
+            });
+
+            modelBuilder.Entity<AddrMunicipality>(e =>
+            {
+                e.ToTable("dbo_addr_municipality", "dbo");
+                e.HasKey(x => x.MunicipalityId);
+                e.Property(x => x.MunicipalityId).HasColumnName("municipality_id");
+                e.Property(x => x.ProvinceId).HasColumnName("province_id");
+                e.Property(x => x.MunicipalityName).HasColumnName("municipality_name");
+            });
+
+            modelBuilder.Entity<AddrBarangay>(e =>
+            {
+                e.ToTable("dbo_addr_barangay", "dbo");
+                e.HasKey(x => x.BarangayId);
+                e.Property(x => x.BarangayId).HasColumnName("barangay_id");
+                e.Property(x => x.MunicipalityId).HasColumnName("municipality_id");
+                e.Property(x => x.BarangayName).HasColumnName("barangay_name");
+                e.Property(x => x.Remark).HasColumnName("remark");
+            });
+
+            modelBuilder.Entity<AddrRegion>(e =>
+            {
+                e.ToTable("dbo_addr_region", "dbo");
+                e.HasKey(x => x.RegionId);
+                e.Property(x => x.RegionId).HasColumnName("region_id");
+                e.Property(x => x.RegionName).HasColumnName("region_name");
+                e.Property(x => x.RegionDescription).HasColumnName("region_description");
+            });
 
             // Province -> Municipalities
             modelBuilder.Entity<AddrProvince>()
                 .HasMany(p => p.Municipalities)
                 .WithOne(m => m.Province)
                 .HasForeignKey(m => m.ProvinceId)
-                .HasPrincipalKey(p => p.ProvinceId);
+                .HasPrincipalKey(p => p.ProvinceId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Municipality -> Barangays
             modelBuilder.Entity<AddrMunicipality>()
                 .HasMany(m => m.Barangays)
                 .WithOne(b => b.Municipality)
                 .HasForeignKey(b => b.MunicipalityId)
-                .HasPrincipalKey(m => m.MunicipalityId);
+                .HasPrincipalKey(m => m.MunicipalityId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // keyless
+            // ============================
+            // ✅ keyless (yours)
+            // ============================
             modelBuilder.Entity<TechFeesNew>().HasNoKey().ToView(null);
             modelBuilder.Entity<TechFeesNewMod>().HasNoKey().ToView(null);
             modelBuilder.Entity<TechFeesRen>().HasNoKey().ToView(null);

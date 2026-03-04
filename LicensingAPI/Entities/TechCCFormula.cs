@@ -14,6 +14,16 @@ namespace Licensing.Entities
         [Column("CitizenCharterGroupID")]
         public int CitizenCharterGroupID { get; set; }
 
+        // ✅ ADD THESE TWO (fix CS1061)
+        // IMPORTANT: column names must match your DB columns.
+        // If your DB column is different, change "Code" / "Amount" below.
+        [Column("Code")]
+        [MaxLength(50)]
+        public string? Code { get; set; }
+
+        [Column("Amount")]
+        public decimal? Amount { get; set; }
+
         [Column("Title")]
         [MaxLength(200)]
         public string? Title { get; set; }
@@ -29,7 +39,6 @@ namespace Licensing.Entities
         [Column("Notes")]
         public string? Notes { get; set; }
 
-        // This navigation works ONLY if TechCCGroup has a [Key]
         public virtual TechCCGroup? CitizenCharterGroup { get; set; }
     }
 }
