@@ -1,0 +1,12 @@
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace LicensingAPI.Controllers
+{
+    public class using_LicensingAPI : Controller
+    {
+        public IActionResult Index()
+        {
+            return View();
+        }
+    }
+}
