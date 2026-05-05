@@ -11,6 +11,9 @@ namespace LicensingAPI.Data
         // ✅ this is the only SOA header table you use
         public DbSet<TechSOA> accessSOA { get; set; }
 
+        // ✅ WDN table - ADDED ONLY
+        public DbSet<LicensingAPI.Entities.AccessWDN> accessWDN { get; set; }
+
         // ✅ KEEP all your other entities below (unchanged)
         public DbSet<TechSOADetails> tblSOADetails { get; set; }
 
@@ -48,6 +51,128 @@ namespace LicensingAPI.Data
             {
                 e.ToTable("accessSOA", "dbo");
                 e.HasKey(x => x.ID);
+            });
+
+            // ✅ WDN table mapping - ADDED ONLY
+            modelBuilder.Entity<LicensingAPI.Entities.AccessWDN>(e =>
+            {
+                e.ToTable("accessWDN", "dbo");
+                e.HasKey(x => x.ID);
+
+                e.Property(x => x.ID)
+                    .HasColumnName("ID")
+                    .ValueGeneratedNever();
+
+                e.Property(x => x.Issued)
+                    .HasColumnName("ISSUED");
+
+                e.Property(x => x.PermitPre)
+                    .HasColumnName("PERMIT_PRE")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.PermitNo)
+                    .HasColumnName("PERMIT_NO")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.PermitYear)
+                    .HasColumnName("PERMIT_YEAR")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.LicenseStatus)
+                    .HasColumnName("LICENSE_STATUS")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.NameOfCompany)
+                    .HasColumnName("NAME OF COMPANY")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.Address)
+                    .HasColumnName("ADDRESS")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.Validity)
+                    .HasColumnName("VALIDITY");
+
+                e.Property(x => x.Ece)
+                    .HasColumnName("ECE")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.OrNo)
+                    .HasColumnName("O R NO")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.Date)
+                    .HasColumnName("DATE");
+
+                e.Property(x => x.Amount)
+                    .HasColumnName("AMOUNT")
+                    .HasColumnType("money");
+
+                e.Property(x => x.ScanLicense)
+                    .HasColumnName("Scan License")
+                    .HasColumnType("ntext");
+
+                e.Property(x => x.TypeOfService)
+                    .HasColumnName("TYPE_OF_SERVICE")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.IssuanceAddress)
+                    .HasColumnName("ISSUANCE_ADDRESS")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.EngrAssigned)
+                    .HasColumnName("ENGR_ASSIGNED")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.EngrLicense)
+                    .HasColumnName("ENGR_LICENSE")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.EngrLicenseValidity)
+                    .HasColumnName("ENGR_LICENSE_VALIDITY");
+
+                e.Property(x => x.NameOfTechnician)
+                    .HasColumnName("NAME_OF_TECHNICIAN")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.Remarks)
+                    .HasColumnName("REMARKS")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.ValidFrom)
+                    .HasColumnName("Valid From");
+
+                e.Property(x => x.OldPermitNo)
+                    .HasColumnName("OLD PERMIT NO")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.Contact)
+                    .HasColumnName("Contact")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.Encoded)
+                    .HasColumnName("Encoded")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.AccountableForm)
+                    .HasColumnName("AccountableForm")
+                    .HasMaxLength(255);
+
+                e.Property(x => x.DateInspected)
+                    .HasColumnName("DateInspected")
+                    .HasMaxLength(10);
+
+                e.Property(x => x.InspectionMO)
+                    .HasColumnName("InspectionMO")
+                    .HasMaxLength(50);
+
+                e.Property(x => x.AdminCase)
+                    .HasColumnName("AdminCase")
+                    .HasColumnType("ntext");
+
+                e.Property(x => x.AdminCaseRemark)
+                    .HasColumnName("AdminCaseRemark")
+                    .HasColumnType("ntext");
             });
 
             // ✅ keep your other mappings as-is
@@ -108,7 +233,6 @@ namespace LicensingAPI.Data
             // ✅ ADDRESS ONLY (NO OTHER CHANGES)
             // ============================
 
-            // Force exact table names/columns (safe even with [Table]/[Column])
             modelBuilder.Entity<AddrProvince>(e =>
             {
                 e.ToTable("dbo_addr_province", "dbo");
