@@ -11,19 +11,37 @@ namespace LicensingAPI.Data
         // ✅ this is the only SOA header table you use
         public DbSet<TechSOA> accessSOA { get; set; }
 
-        // ✅ WDN table - ADDED ONLY
+        // ✅ WDN table
         public DbSet<LicensingAPI.Entities.AccessWDN> accessWDN { get; set; }
 
-        // ✅ DTH table - ADDED ONLY
+        // ✅ DTH table
         public DbSet<LicensingAPI.Entities.AccessDTH> accessDTH { get; set; }
 
-        // ✅ MPSC table - ADDED ONLY
+        // ✅ MPSC table
         public DbSet<LicensingAPI.Entities.AccessMPSC> accessMPSC { get; set; }
 
-        // ✅ MPDP table - ADDED ONLY
+        // ✅ MPDP table
         public DbSet<LicensingAPI.Entities.AccessMPDP> accessMPDP { get; set; }
 
-        // ✅ KEEP all your other entities below (unchanged)
+        // ✅ Permit Transport table
+        public DbSet<LicensingAPI.Entities.AccessPermitTransport> accessPermitTransport { get; set; }
+
+        // ✅ Permit Sell Transfer table
+        public DbSet<LicensingAPI.Entities.AccessPermitSellTransfer> accessPermitSellTransfer { get; set; }
+
+        // ✅ GROC table
+        public DbSet<LicensingAPI.Entities.AccessGROC> accessGROC { get; set; }
+
+        // ✅ RLM table
+        public DbSet<LicensingAPI.Entities.AccessRLM> accessRLM { get; set; }
+
+        // ✅ ROC table
+        public DbSet<LicensingAPI.Entities.AccessROC> accessROC { get; set; }
+
+        // ✅ SROP table - ADDED ONLY
+        public DbSet<LicensingAPI.Entities.AccessSROP> accessSROP { get; set; }
+
+        // ✅ KEEP all your other entities below unchanged
         public DbSet<TechSOADetails> tblSOADetails { get; set; }
 
         public DbSet<TechCCFormula> CitizenCharterFormula { get; set; }
@@ -36,7 +54,7 @@ namespace LicensingAPI.Data
         public DbSet<TechSUFRate> SUFRate { get; set; }
         public DbSet<TechService> TechService { get; set; }
 
-        // keyless (keep yours if you have them)
+        // keyless
         public DbSet<TechFeesNew> TechFeesNew { get; set; }
         public DbSet<TechFeesNewMod> TechFeesNewMod { get; set; }
         public DbSet<TechFeesRen> TechFeesRen { get; set; }
@@ -55,14 +73,14 @@ namespace LicensingAPI.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // ✅ OPTIONAL: force map to accessSOA (safe)
+            // ✅ SOA
             modelBuilder.Entity<TechSOA>(e =>
             {
                 e.ToTable("accessSOA", "dbo");
                 e.HasKey(x => x.ID);
             });
 
-            // ✅ WDN table mapping - ADDED ONLY
+            // ✅ WDN table mapping
             modelBuilder.Entity<LicensingAPI.Entities.AccessWDN>(e =>
             {
                 e.ToTable("accessWDN", "dbo");
@@ -100,7 +118,7 @@ namespace LicensingAPI.Data
                 e.Property(x => x.AdminCaseRemark).HasColumnName("AdminCaseRemark").HasColumnType("ntext");
             });
 
-            // ✅ DTH table mapping - ADDED ONLY
+            // ✅ DTH table mapping
             modelBuilder.Entity<LicensingAPI.Entities.AccessDTH>(e =>
             {
                 e.ToTable("accessDTH", "dbo");
@@ -145,7 +163,7 @@ namespace LicensingAPI.Data
                 e.Property(x => x.RowVer).HasColumnName("RowVer").IsRowVersion();
             });
 
-            // ✅ MPSC table mapping - ADDED ONLY
+            // ✅ MPSC table mapping
             modelBuilder.Entity<LicensingAPI.Entities.AccessMPSC>(e =>
             {
                 e.ToTable("accessMPSC", "dbo");
@@ -195,7 +213,7 @@ namespace LicensingAPI.Data
                 e.Property(x => x.RowVer).HasColumnName("RowVer").IsRowVersion();
             });
 
-            // ✅ MPDP table mapping - ADDED ONLY
+            // ✅ MPDP table mapping
             modelBuilder.Entity<LicensingAPI.Entities.AccessMPDP>(e =>
             {
                 e.ToTable("accessMPDP", "dbo");
@@ -247,6 +265,273 @@ namespace LicensingAPI.Data
                 e.Property(x => x.RowVer).HasColumnName("RowVer").IsRowVersion();
             });
 
+            // ✅ Permit Transport table mapping
+            modelBuilder.Entity<LicensingAPI.Entities.AccessPermitTransport>(e =>
+            {
+                e.ToTable("accessPermitTransport", "dbo");
+                e.HasKey(x => x.ID);
+
+                e.Property(x => x.ID).HasColumnName("ID").ValueGeneratedNever();
+                e.Property(x => x.ReferenceNo).HasColumnName("REFERENCE NO").HasMaxLength(255);
+                e.Property(x => x.Applicant).HasColumnName("APPLICANT").HasMaxLength(255);
+                e.Property(x => x.Address).HasColumnName("ADDRESS").HasMaxLength(255);
+                e.Property(x => x.DateProcessed).HasColumnName("Date Processed");
+                e.Property(x => x.TelNo).HasColumnName("TEL NO").HasMaxLength(50);
+                e.Property(x => x.NameAuthorizedRep).HasColumnName("NAME AUTHORIZED REP").HasMaxLength(255);
+                e.Property(x => x.DateTransport).HasColumnName("Date Transport").HasMaxLength(255);
+                e.Property(x => x.PlaceOfOrigin).HasColumnName("PLACE OF ORIGIN").HasMaxLength(255);
+                e.Property(x => x.Destination).HasColumnName("DESTINATION").HasMaxLength(255);
+                e.Property(x => x.Purpose).HasColumnName("PURPOSE").HasMaxLength(255);
+                e.Property(x => x.IsCopyPermitToPossess).HasColumnName("IsCopyPermittoPossess");
+                e.Property(x => x.IsCopyRLS).HasColumnName("IsCopyRLS");
+                e.Property(x => x.IsCopyDealersPermit).HasColumnName("IsCopyDealersPermit");
+                e.Property(x => x.OtherAttachment).HasColumnName("Other Attachment").HasMaxLength(255);
+                e.Property(x => x.Model).HasColumnName("Model").HasMaxLength(255);
+                e.Property(x => x.SerialNumbers).HasColumnName("Serial Numbers").HasMaxLength(255);
+                e.Property(x => x.Model1).HasColumnName("Model1").HasMaxLength(255);
+                e.Property(x => x.SerialNumbers1).HasColumnName("Serial Numbers1").HasMaxLength(255);
+                e.Property(x => x.OfficialReceipt).HasColumnName("Official Receipt").HasColumnType("decimal(18,0)");
+                e.Property(x => x.Amount).HasColumnName("Amount").HasColumnType("money");
+                e.Property(x => x.Date).HasColumnName("Date");
+                e.Property(x => x.Encoded).HasColumnName("Encoded").HasMaxLength(255);
+                e.Property(x => x.ApplicantName).HasColumnName("Applicant Name").HasMaxLength(255);
+                e.Property(x => x.PermitNo).HasColumnName("Permit No").HasMaxLength(255);
+                e.Property(x => x.DateIssued).HasColumnName("Date Issued");
+                e.Property(x => x.ApprovingOfficer).HasColumnName("Approving Officer").HasMaxLength(255);
+                e.Property(x => x.Position).HasColumnName("Position").HasMaxLength(255);
+            });
+
+            // ✅ Permit Sell Transfer table mapping
+            modelBuilder.Entity<LicensingAPI.Entities.AccessPermitSellTransfer>(e =>
+            {
+                e.ToTable("accessPermitSellTransfer", "dbo");
+                e.HasKey(x => x.ID);
+
+                e.Property(x => x.ID).HasColumnName("ID").ValueGeneratedNever();
+                e.Property(x => x.PermitNo).HasColumnName("PERMIT NO").HasMaxLength(255);
+                e.Property(x => x.Applicant).HasColumnName("APPLICANT").HasMaxLength(255);
+                e.Property(x => x.Address).HasColumnName("ADDRESS").HasMaxLength(255);
+                e.Property(x => x.DateProcessed).HasColumnName("Date Processed");
+                e.Property(x => x.Model).HasColumnName("Model").HasMaxLength(255);
+                e.Property(x => x.NoOfUnits).HasColumnName("No Of Units").HasMaxLength(255);
+                e.Property(x => x.SerialNumbers).HasColumnName("Serial Numbers").HasMaxLength(255);
+                e.Property(x => x.OfficialReceipt).HasColumnName("Official Receipt").HasColumnType("decimal(18,0)");
+                e.Property(x => x.Amount).HasColumnName("Amount").HasColumnType("money");
+                e.Property(x => x.Date).HasColumnName("Date");
+                e.Property(x => x.Encoded).HasColumnName("Encoded").HasMaxLength(255);
+                e.Property(x => x.Buyer).HasColumnName("Buyer").HasMaxLength(255);
+                e.Property(x => x.BuyerAddress).HasColumnName("Buyer Address").HasMaxLength(255);
+                e.Property(x => x.PPurchaseNo).HasColumnName("PPurchase No").HasMaxLength(255);
+                e.Property(x => x.PPurchaseDateIssue).HasColumnName("PPurchase Date Issue").HasMaxLength(255);
+                e.Property(x => x.IntendedUse).HasColumnName("Intended Use").HasMaxLength(255);
+                e.Property(x => x.ApprovingOfficer).HasColumnName("Approving Officer").HasMaxLength(255);
+                e.Property(x => x.Position).HasColumnName("Position").HasMaxLength(255);
+                e.Property(x => x.UnitCount).HasColumnName("UnitCount");
+            });
+
+            // ✅ GROC table mapping
+            modelBuilder.Entity<LicensingAPI.Entities.AccessGROC>(e =>
+            {
+                e.ToTable("accessGROC", "dbo");
+                e.HasKey(x => x.ID);
+
+                e.Property(x => x.ID).HasColumnName("ID").ValueGeneratedNever();
+                e.Property(x => x.Licensee).HasColumnName("LICENSEE").HasMaxLength(255);
+                e.Property(x => x.Address).HasColumnName("ADDRESS").HasMaxLength(255);
+                e.Property(x => x.Province).HasColumnName("PROVINCE").HasMaxLength(255);
+                e.Property(x => x.LicenseNo).HasColumnName("LICENSE NO").HasMaxLength(255);
+                e.Property(x => x.Birthday).HasColumnName("BIRTHDAY");
+                e.Property(x => x.Citizenship).HasColumnName("CITIZENSHIP").HasMaxLength(255);
+                e.Property(x => x.Sex).HasColumnName("SEX").HasMaxLength(255);
+                e.Property(x => x.Height).HasColumnName("HEIGHT");
+                e.Property(x => x.Weight).HasColumnName("WEIGHT");
+                e.Property(x => x.OfficialReceipt).HasColumnName("OFFICIAL RECEIPT");
+                e.Property(x => x.DatePaid).HasColumnName("DATE PAID");
+                e.Property(x => x.Amount).HasColumnName("AMOUNT").HasColumnType("money");
+                e.Property(x => x.DateIssued).HasColumnName("DATE ISSUED");
+                e.Property(x => x.ExpiryDate).HasColumnName("EXPIRY DATE");
+                e.Property(x => x.RecommendingApproval).HasColumnName("RECOMMENDING APPROVAL").HasMaxLength(255);
+                e.Property(x => x.RegionalDirector).HasColumnName("REGIONAL DIRECTOR").HasMaxLength(255);
+                e.Property(x => x.Position).HasColumnName("POSITION").HasMaxLength(255);
+                e.Property(x => x.TypeClass).HasColumnName("TYPE/CLASS").HasMaxLength(255);
+                e.Property(x => x.DateTaken).HasColumnName("DATE TAKEN").HasColumnType("date");
+                e.Property(x => x.PlaceOfExam).HasColumnName("PLACE OF EXAM").HasMaxLength(255);
+                e.Property(x => x.Rating).HasColumnName("RATING").HasMaxLength(255);
+                e.Property(x => x.Remarks).HasColumnName("REMARKS").HasMaxLength(255);
+                e.Property(x => x.Encoder).HasColumnName("ENCODER").HasMaxLength(255);
+                e.Property(x => x.Note).HasColumnName("NOTE").HasMaxLength(255);
+                e.Property(x => x.Userlog).HasColumnName("Userlog").HasMaxLength(255);
+                e.Property(x => x.InsertDate).HasColumnName("InsertDate");
+                e.Property(x => x.LastUpdateUser).HasColumnName("LastUpdateUser").HasMaxLength(255);
+                e.Property(x => x.LastUpdateDate).HasColumnName("LastUpdateDate");
+                e.Property(x => x.AccountableFormNumber).HasColumnName("AccountableFormNumber");
+                e.Property(x => x.OfficialReceipt2).HasColumnName("OFFICIAL RECEIPT2");
+                e.Property(x => x.DatePaid2).HasColumnName("DATE PAID2");
+                e.Property(x => x.Amount2).HasColumnName("AMOUNT2").HasColumnType("money");
+                e.Property(x => x.Series).HasColumnName("SERIES");
+                e.Property(x => x.AdminCaseRemark).HasColumnName("AdminCaseRemark").HasColumnType("ntext");
+                e.Property(x => x.DateInspected).HasColumnName("DateInspected").HasMaxLength(255);
+                e.Property(x => x.InspectionMO).HasColumnName("InspectionMO").HasMaxLength(255);
+                e.Property(x => x.IsOpen).HasColumnName("isOpen");
+                e.Property(x => x.IsPrinted).HasColumnName("isPrinted");
+                e.Property(x => x.RoutingRefNo).HasColumnName("RoutingRefNo").HasMaxLength(255);
+                e.Property(x => x.CertOfCompletionSerialGROC)
+                    .HasColumnName("CertOfCompletionSerialGROC")
+                    .HasColumnType("varchar(255)");
+
+                e.Property(x => x.RowVer).HasColumnName("RowVer").IsRowVersion();
+            });
+
+            // ✅ RLM table mapping
+            modelBuilder.Entity<LicensingAPI.Entities.AccessRLM>(e =>
+            {
+                e.ToTable("accessRLM", "dbo");
+                e.HasKey(x => x.ID);
+
+                e.Property(x => x.ID)
+                    .HasColumnName("ID")
+                    .ValueGeneratedOnAdd();
+
+                e.Property(x => x.Name).HasColumnName("NAME").HasMaxLength(255);
+                e.Property(x => x.LicenseNo).HasColumnName("LICENSE NO").HasMaxLength(255);
+                e.Property(x => x.Series).HasColumnName("SERIES").HasMaxLength(255);
+                e.Property(x => x.Remark).HasColumnName("REMARK").HasMaxLength(255);
+                e.Property(x => x.Issued).HasColumnName("ISSUED");
+                e.Property(x => x.ValidUntil).HasColumnName("VALID UNTIL");
+                e.Property(x => x.OperatorFee).HasColumnName("OPERATOR FEE").HasMaxLength(255);
+                e.Property(x => x.Address).HasColumnName("ADDRESS").HasMaxLength(255);
+                e.Property(x => x.Birthdate).HasColumnName("BIRTHDATE");
+                e.Property(x => x.Height).HasColumnName("HEIGHT").HasMaxLength(255);
+                e.Property(x => x.Weight).HasColumnName("WEIGHT").HasMaxLength(255);
+                e.Property(x => x.Citizenship).HasColumnName("CITIZENSHIP").HasMaxLength(255);
+                e.Property(x => x.Sex).HasColumnName("SEX").HasMaxLength(255);
+                e.Property(x => x.Company).HasColumnName("COMPANY").HasMaxLength(255);
+                e.Property(x => x.DateOfSem).HasColumnName("DATE OF SEM").HasMaxLength(255);
+                e.Property(x => x.PlaceOfSem).HasColumnName("PLACE OF SEM").HasMaxLength(255);
+                e.Property(x => x.OfficialReceipt).HasColumnName("Official Receipt").HasMaxLength(255);
+                e.Property(x => x.Amount).HasColumnName("Amount").HasColumnType("money");
+                e.Property(x => x.DatePaid).HasColumnName("DATE PAID");
+                e.Property(x => x.ForTheCommission).HasColumnName("FOR THE COMMISSION").HasMaxLength(255);
+                e.Property(x => x.Position).HasColumnName("POSITION").HasMaxLength(255);
+                e.Property(x => x.Encoded).HasColumnName("Encoded").HasMaxLength(255);
+                e.Property(x => x.LastName).HasColumnName("LAST NAME").HasMaxLength(255);
+                e.Property(x => x.FirstName).HasColumnName("FIRST NAME").HasMaxLength(255);
+                e.Property(x => x.MiddleName).HasColumnName("MIDDLE NAME").HasMaxLength(255);
+                e.Property(x => x.OperatorFees).HasColumnName("OPERATOR FEES").HasMaxLength(255);
+                e.Property(x => x.DocStamp).HasColumnName("DOC STAMP").HasMaxLength(255);
+                e.Property(x => x.ReleasedDate).HasColumnName("RELEASED DATE").HasMaxLength(255);
+                e.Property(x => x.AccountableForm).HasColumnName("AccountableForm").HasMaxLength(255);
+                e.Property(x => x.OfficialReceipt2).HasColumnName("Official Receipt2").HasMaxLength(255);
+                e.Property(x => x.Amount2).HasColumnName("Amount2").HasColumnType("money");
+                e.Property(x => x.DatePaid2).HasColumnName("Date Paid2");
+                e.Property(x => x.OperatorFees2).HasColumnName("OPERATOR FEES2").HasMaxLength(255);
+                e.Property(x => x.Status).HasColumnName("Status").HasMaxLength(10);
+                e.Property(x => x.MobileNote).HasColumnName("Mobile Note").HasMaxLength(255);
+                e.Property(x => x.IsOpen).HasColumnName("isOpen");
+                e.Property(x => x.IsPrinted).HasColumnName("isPrinted");
+                e.Property(x => x.RoutingRefNo).HasColumnName("RoutingRefNo").HasMaxLength(255);
+            });
+
+            // ✅ ROC table mapping
+            modelBuilder.Entity<LicensingAPI.Entities.AccessROC>(e =>
+            {
+                e.ToTable("accessROC", "dbo");
+                e.HasKey(x => x.ID);
+
+                e.Property(x => x.ID).HasColumnName("ID").ValueGeneratedNever();
+                e.Property(x => x.Licensee).HasColumnName("LICENSEE").HasMaxLength(255);
+                e.Property(x => x.Address).HasColumnName("ADDRESS").HasMaxLength(255);
+                e.Property(x => x.Province).HasColumnName("PROVINCE").HasMaxLength(255);
+                e.Property(x => x.LicenseNo).HasColumnName("LICENSE NO").HasMaxLength(255);
+                e.Property(x => x.Birthday).HasColumnName("BIRTHDAY");
+                e.Property(x => x.Citizenship).HasColumnName("CITIZENSHIP").HasMaxLength(255);
+                e.Property(x => x.Sex).HasColumnName("SEX").HasMaxLength(255);
+                e.Property(x => x.Height).HasColumnName("HEIGHT");
+                e.Property(x => x.Weight).HasColumnName("WEIGHT");
+                e.Property(x => x.OfficialReceipt).HasColumnName("OFFICIAL RECEIPT");
+                e.Property(x => x.DatePaid).HasColumnName("DATE PAID");
+                e.Property(x => x.Amount).HasColumnName("AMOUNT").HasColumnType("money");
+                e.Property(x => x.DateIssued).HasColumnName("DATE ISSUED");
+                e.Property(x => x.ExpiryDate).HasColumnName("EXPIRY DATE");
+                e.Property(x => x.RecommendingApproval).HasColumnName("RECOMMENDING APPROVAL").HasMaxLength(255);
+                e.Property(x => x.RegionalDirector).HasColumnName("REGIONAL DIRECTOR").HasMaxLength(255);
+                e.Property(x => x.Position).HasColumnName("POSITION").HasMaxLength(255);
+                e.Property(x => x.TypeClass).HasColumnName("TYPE/CLASS").HasMaxLength(255);
+                e.Property(x => x.DateTaken).HasColumnName("DATE TAKEN").HasMaxLength(255);
+                e.Property(x => x.PlaceOfExam).HasColumnName("PLACE OF EXAM").HasMaxLength(255);
+                e.Property(x => x.Rating).HasColumnName("RATING").HasMaxLength(255);
+                e.Property(x => x.Remarks).HasColumnName("REMARKS").HasMaxLength(255);
+                e.Property(x => x.Encoder).HasColumnName("ENCODER").HasMaxLength(255);
+                e.Property(x => x.Note).HasColumnName("NOTE").HasMaxLength(255);
+                e.Property(x => x.Userlog).HasColumnName("Userlog").HasMaxLength(255);
+                e.Property(x => x.InsertDate).HasColumnName("InsertDate");
+                e.Property(x => x.LastUpdateUser).HasColumnName("LastUpdateUser").HasMaxLength(255);
+                e.Property(x => x.LastUpdateDate).HasColumnName("LastUpdateDate");
+                e.Property(x => x.AccountableFormNumber).HasColumnName("AccountableFormNumber");
+                e.Property(x => x.OfficialReceipt2).HasColumnName("OFFICIAL RECEIPT2");
+                e.Property(x => x.DatePaid2).HasColumnName("DATE PAID2");
+                e.Property(x => x.Amount2).HasColumnName("AMOUNT2").HasColumnType("money");
+                e.Property(x => x.AdminCase).HasColumnName("AdminCase").HasColumnType("ntext");
+                e.Property(x => x.AdminCaseRemark).HasColumnName("AdminCaseRemark").HasColumnType("ntext");
+                e.Property(x => x.DateInspected).HasColumnName("DateInspected").HasMaxLength(10);
+                e.Property(x => x.InspectionMO).HasColumnName("InspectionMO").HasMaxLength(50);
+                e.Property(x => x.IsOpen).HasColumnName("isOpen");
+                e.Property(x => x.IsPrinted).HasColumnName("isPrinted");
+                e.Property(x => x.RoutingRefNo).HasColumnName("RoutingRefNo").HasMaxLength(255);
+                e.Property(x => x.RowVer).HasColumnName("RowVer").IsRowVersion();
+            });
+
+            // ✅ SROP table mapping - ADDED ONLY
+            modelBuilder.Entity<LicensingAPI.Entities.AccessSROP>(e =>
+            {
+                e.ToTable("accessSROP", "dbo");
+                e.HasKey(x => x.ID);
+
+                e.Property(x => x.ID).HasColumnName("ID").ValueGeneratedNever();
+                e.Property(x => x.Licensee).HasColumnName("LICENSEE").HasMaxLength(255);
+                e.Property(x => x.Address).HasColumnName("ADDRESS").HasMaxLength(255);
+                e.Property(x => x.Province).HasColumnName("PROVINCE").HasMaxLength(255);
+                e.Property(x => x.LicenseNo).HasColumnName("LICENSE NO").HasMaxLength(255);
+                e.Property(x => x.Birthday).HasColumnName("BIRTHDAY");
+                e.Property(x => x.Citizenship).HasColumnName("CITIZENSHIP").HasMaxLength(255);
+                e.Property(x => x.Sex).HasColumnName("SEX").HasMaxLength(255);
+                e.Property(x => x.Height).HasColumnName("HEIGHT");
+                e.Property(x => x.Weight).HasColumnName("WEIGHT");
+                e.Property(x => x.OfficialReceipt).HasColumnName("OFFICIAL RECEIPT");
+                e.Property(x => x.DatePaid).HasColumnName("DATE PAID");
+                e.Property(x => x.Amount).HasColumnName("AMOUNT").HasColumnType("money");
+                e.Property(x => x.DateIssued).HasColumnName("DATE ISSUED");
+                e.Property(x => x.ExpiryDate).HasColumnName("EXPIRY DATE");
+                e.Property(x => x.RecommendingApproval).HasColumnName("RECOMMENDING APPROVAL").HasMaxLength(255);
+                e.Property(x => x.RegionalDirector).HasColumnName("REGIONAL DIRECTOR").HasMaxLength(255);
+                e.Property(x => x.Position).HasColumnName("POSITION").HasMaxLength(255);
+                e.Property(x => x.TypeClass).HasColumnName("TYPE/CLASS").HasMaxLength(255);
+                e.Property(x => x.DateTaken).HasColumnName("DATE TAKEN");
+                e.Property(x => x.PlaceOfExam).HasColumnName("PLACE OF EXAM").HasMaxLength(255);
+                e.Property(x => x.Rating).HasColumnName("RATING").HasMaxLength(255);
+                e.Property(x => x.Remarks).HasColumnName("REMARKS").HasMaxLength(255);
+                e.Property(x => x.Encoder).HasColumnName("ENCODER").HasMaxLength(255);
+                e.Property(x => x.Note).HasColumnName("NOTE").HasMaxLength(255);
+                e.Property(x => x.Userlog).HasColumnName("Userlog").HasMaxLength(255);
+                e.Property(x => x.InsertDate).HasColumnName("InsertDate");
+                e.Property(x => x.LastUpdateUser).HasColumnName("LastUpdateUser").HasMaxLength(255);
+                e.Property(x => x.LastUpdateDate).HasColumnName("LastUpdateDate");
+                e.Property(x => x.AccountableFormNumber).HasColumnName("AccountableFormNumber");
+                e.Property(x => x.OfficialReceipt2).HasColumnName("OFFICIAL RECEIPT2");
+                e.Property(x => x.DatePaid2).HasColumnName("DATE PAID2");
+                e.Property(x => x.Amount2).HasColumnName("AMOUNT2").HasColumnType("money");
+                e.Property(x => x.Series).HasColumnName("SERIES");
+                e.Property(x => x.IsOpen).HasColumnName("isOpen");
+                e.Property(x => x.IsPrinted).HasColumnName("isPrinted");
+                e.Property(x => x.RoutingRefNo).HasColumnName("RoutingRefNo").HasMaxLength(255);
+
+                e.Property(x => x.CertOfCompletionSerialSROP)
+                    .HasColumnName("CertOfCompletionSerialSROP")
+                    .HasColumnType("varchar(255)");
+
+                e.Property(x => x.RowVer).HasColumnName("RowVer").IsRowVersion();
+            });
+
             // ✅ keep your other mappings as-is
             modelBuilder.Entity<TechSOADetails>(e =>
             {
@@ -266,9 +551,9 @@ namespace LicensingAPI.Data
                 e.HasKey(x => x.CitizenCharterGroupID);
 
                 e.HasMany(x => x.TechCCFormula)
-                 .WithOne(f => f.CitizenCharterGroup)
-                 .HasForeignKey(f => f.CitizenCharterGroupID)
-                 .OnDelete(DeleteBehavior.Restrict);
+                    .WithOne(f => f.CitizenCharterGroup)
+                    .HasForeignKey(f => f.CitizenCharterGroupID)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<TechCCFormula>(e =>
@@ -302,7 +587,7 @@ namespace LicensingAPI.Data
             });
 
             // ============================
-            // ✅ ADDRESS ONLY (NO OTHER CHANGES)
+            // ✅ ADDRESS ONLY
             // ============================
 
             modelBuilder.Entity<AddrProvince>(e =>
@@ -342,7 +627,6 @@ namespace LicensingAPI.Data
                 e.Property(x => x.RegionDescription).HasColumnName("region_description");
             });
 
-            // Province -> Municipalities
             modelBuilder.Entity<AddrProvince>()
                 .HasMany(p => p.Municipalities)
                 .WithOne(m => m.Province)
@@ -350,7 +634,6 @@ namespace LicensingAPI.Data
                 .HasPrincipalKey(p => p.ProvinceId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Municipality -> Barangays
             modelBuilder.Entity<AddrMunicipality>()
                 .HasMany(m => m.Barangays)
                 .WithOne(b => b.Municipality)
@@ -359,7 +642,7 @@ namespace LicensingAPI.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             // ============================
-            // ✅ keyless (yours)
+            // ✅ keyless
             // ============================
             modelBuilder.Entity<TechFeesNew>().HasNoKey().ToView(null);
             modelBuilder.Entity<TechFeesNewMod>().HasNoKey().ToView(null);

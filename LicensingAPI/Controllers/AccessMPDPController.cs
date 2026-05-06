@@ -154,7 +154,7 @@ namespace LicensingAPI.Controllers
 
             if (record == null)
                 return NotFound();
-
+    
             _context.accessMPDP.Remove(record);
             await _context.SaveChangesAsync();
 
