@@ -36,6 +36,15 @@ namespace LicensingAPI.Data
 
         public DbSet<LicensingAPI.Entities.AccessAmateurFull> accessAmateurFull { get; set; }
 
+        // ✅ NEWLY ADDED: CATV
+        public DbSet<LicensingAPI.Entities.AccessCATV> accessCATV { get; set; }
+
+        // ✅ NEWLY ADDED: TVRO
+        public DbSet<LicensingAPI.Entities.AccessTVRO> accessTVRO { get; set; }
+
+        // ✅ NEWLY ADDED: RTG
+        public DbSet<LicensingAPI.Entities.AccessRTG> accessRTG { get; set; }
+
         public DbSet<LicensingAPI.Entities.AccessPermitPossess> accessPermitPossess { get; set; }
 
         public DbSet<LicensingAPI.Entities.AccessPermitPurchase> accessPermitPurchase { get; set; }
@@ -290,6 +299,237 @@ namespace LicensingAPI.Data
                 e.Property(x => x.Serial).HasColumnName("SERIAL").HasColumnType("numeric(18,2)");
                 e.Property(x => x.LastModified).HasColumnName("LAST MODIFIED").HasMaxLength(10);
                 e.Property(x => x.RowVer).HasColumnName("RowVer").IsRowVersion();
+            });
+
+            // ============================
+            // CATV - NEWLY ADDED
+            // ============================
+
+            modelBuilder.Entity<LicensingAPI.Entities.AccessCATV>(e =>
+            {
+                e.ToTable("accessCATV", "dbo");
+                e.HasKey(x => x.ID);
+
+                e.Property(x => x.ID).HasColumnName("ID").ValueGeneratedNever();
+
+                e.Property(x => x.BmcCaseNo).HasColumnName("BMC Case No").HasMaxLength(255);
+                e.Property(x => x.Period).HasColumnName("Period").HasMaxLength(255);
+                e.Property(x => x.LicenseNo).HasColumnName("LICENSE No").HasMaxLength(255);
+                e.Property(x => x.Licensee).HasColumnName("LICENSEE").HasMaxLength(255);
+                e.Property(x => x.Location).HasColumnName("LOCATION").HasMaxLength(255);
+                e.Property(x => x.ServiceArea).HasColumnName("Service Area").HasMaxLength(255);
+
+                e.Property(x => x.ValidFrom).HasColumnName("Valid from");
+                e.Property(x => x.ValidUntil).HasColumnName("Valid until");
+
+                e.Property(x => x.ModulatorModel).HasColumnName("Modulator Model").HasMaxLength(255);
+                e.Property(x => x.ModulatorSerial).HasColumnName("Modulator Serial").HasMaxLength(255);
+                e.Property(x => x.ModulatorRemarks).HasColumnName("Modulator Remarks").HasMaxLength(255);
+
+                e.Property(x => x.CombinerModel).HasColumnName("Combiner Model").HasMaxLength(255);
+                e.Property(x => x.CombinerSerial).HasColumnName("Combiner Serial").HasMaxLength(255);
+                e.Property(x => x.CombinerRemarks).HasColumnName("Combiner Remarks").HasMaxLength(255);
+
+                e.Property(x => x.OtherEquipment).HasColumnName("Other Equipment").HasMaxLength(255);
+
+                e.Property(x => x.OrNo).HasColumnName("OR No");
+                e.Property(x => x.OrDate).HasColumnName("OR Date");
+                e.Property(x => x.Amount).HasColumnName("Amount").HasColumnType("numeric(18,2)");
+
+                e.Property(x => x.Issued).HasColumnName("ISSUED");
+                e.Property(x => x.Encoded).HasColumnName("Encoded").HasMaxLength(255);
+                e.Property(x => x.CaIssuedOn).HasColumnName("CA ISSUED ON");
+                e.Property(x => x.ReleasedDate).HasColumnName("Released Date");
+                e.Property(x => x.FormSerial).HasColumnName("Form Serial");
+
+                e.Property(x => x.ControlNumber).HasColumnName("Control Number").HasMaxLength(255);
+                e.Property(x => x.CertificateOfAuthority).HasColumnName("Certificate of Authority").HasMaxLength(255);
+
+                e.Property(x => x.Attachment).HasColumnName("ATTACHMENT").HasColumnType("ntext");
+
+                e.Property(x => x.ModulatorModelCont2).HasColumnName("ModulatorModelcont2").HasMaxLength(255);
+                e.Property(x => x.ModukatorSerioal2).HasColumnName("ModukatorSerioal2").HasMaxLength(255);
+                e.Property(x => x.CombinerModel2).HasColumnName("CombinerModel2").HasMaxLength(255);
+                e.Property(x => x.CombinerSerial2).HasColumnName("CombinerSerial2").HasMaxLength(255);
+                e.Property(x => x.ModulatorSerial3).HasColumnName("ModulatorSerial3").HasMaxLength(255);
+
+                e.Property(x => x.Field1).HasColumnName("Field1").HasMaxLength(255);
+                e.Property(x => x.MtrcbPermitNo).HasColumnName("MTRCB PERMIT NO").HasMaxLength(255);
+                e.Property(x => x.MayorsPermitNo).HasColumnName("MAYOR'S PERMIT NO").HasMaxLength(255);
+                e.Property(x => x.Attachment1).HasColumnName("ATTACHMENT1").HasMaxLength(255);
+
+                e.Property(x => x.Status).HasColumnName("STATUS").HasMaxLength(255);
+                e.Property(x => x.ContactNumber).HasColumnName("CONTACT NUMBER").HasMaxLength(255);
+                e.Property(x => x.RemarksForModification).HasColumnName("REMARKS for MODIFICATION").HasMaxLength(255);
+                e.Property(x => x.Encoder).HasColumnName("Encoder").HasMaxLength(255);
+                e.Property(x => x.Modification).HasColumnName("Modification").HasMaxLength(255);
+
+                e.Property(x => x.ReceiverModel).HasColumnName("ReceiverModel").HasMaxLength(255);
+                e.Property(x => x.ReceiverSerial).HasColumnName("ReceiverSerial").HasMaxLength(255);
+                e.Property(x => x.ReceiverSerial2).HasColumnName("ReceiverSerial2").HasMaxLength(255);
+                e.Property(x => x.SatelliteOther).HasColumnName("SatelliteOther").HasMaxLength(255);
+
+                e.Property(x => x.ReceivedFreqOthers).HasColumnName("ReceivedFreqOthers").HasMaxLength(255);
+                e.Property(x => x.ReceivedFreqOthers2).HasColumnName("ReceivedFreqOthers2").HasMaxLength(255);
+                e.Property(x => x.ReceivedFreqOthers3).HasColumnName("ReceivedFreqOthers3").HasMaxLength(255);
+
+                e.Property(x => x.ReceiverSerial3).HasColumnName("ReceiverSerial3").HasMaxLength(255);
+                e.Property(x => x.LnaSerial).HasColumnName("LNASerial").HasMaxLength(255);
+
+                e.Property(x => x.IsOpen).HasColumnName("isOpen");
+                e.Property(x => x.IsPrinted).HasColumnName("isPrinted");
+                e.Property(x => x.RoutingRefNo).HasColumnName("RoutingRefNo").HasMaxLength(255);
+
+                e.Property(x => x.RowVer).HasColumnName("RowVer").IsRowVersion();
+            });
+
+            // ============================
+            // TVRO - NEWLY ADDED
+            // ============================
+
+            modelBuilder.Entity<LicensingAPI.Entities.AccessTVRO>(e =>
+            {
+                e.ToTable("accessTVRO", "dbo");
+                e.HasKey(x => x.ID);
+
+                e.Property(x => x.ID).HasColumnName("ID").ValueGeneratedNever();
+
+                e.Property(x => x.BsdNo).HasColumnName("BSD NO").HasMaxLength(255);
+                e.Property(x => x.ReleasedDate).HasColumnName("RELEASED DATE");
+                e.Property(x => x.DateIssued).HasColumnName("DATE ISSUED");
+                e.Property(x => x.LicenseNo).HasColumnName("LICENSE NO").HasMaxLength(255);
+                e.Property(x => x.Licensee).HasColumnName("LICENSEE").HasMaxLength(255);
+                e.Property(x => x.Location).HasColumnName("LOCATION").HasMaxLength(255);
+
+                e.Property(x => x.ValidFrom).HasColumnName("Valid from");
+                e.Property(x => x.ValidUntil).HasColumnName("Valid Until");
+
+                e.Property(x => x.ModelLna).HasColumnName("Model LNA").HasMaxLength(255);
+                e.Property(x => x.ModelReceiver).HasColumnName("Model Receiver").HasMaxLength(255);
+                e.Property(x => x.RangeLna).HasColumnName("Range LNA").HasMaxLength(255);
+                e.Property(x => x.RangeReceiver).HasColumnName("Range Receiver").HasMaxLength(255);
+                e.Property(x => x.SerialLna).HasColumnName("Serial LNA").HasMaxLength(255);
+                e.Property(x => x.SerialReceiver).HasColumnName("Serial Receiver").HasMaxLength(255);
+
+                e.Property(x => x.Satellite).HasColumnName("Satellite").HasMaxLength(255);
+                e.Property(x => x.ReceiveFreq).HasColumnName("Receive Freq").HasMaxLength(255);
+                e.Property(x => x.Remarks).HasColumnName("Remarks").HasMaxLength(255);
+                e.Property(x => x.OtherEquipment).HasColumnName("Other Equipment").HasMaxLength(255);
+
+                e.Property(x => x.DateProcessed).HasColumnName("Date Processed");
+                e.Property(x => x.OfficialReceipt).HasColumnName("Official Receipt");
+                e.Property(x => x.OrDate).HasColumnName("OR Date");
+                e.Property(x => x.Amount).HasColumnName("Amount").HasColumnType("numeric(18,2)");
+
+                e.Property(x => x.TvroRegistration).HasColumnName("TVRO Registration").HasMaxLength(255);
+                e.Property(x => x.TvroRegDate).HasColumnName("TVRO Reg Date");
+                e.Property(x => x.IssuedBy).HasColumnName("ISSUED BY").HasMaxLength(255);
+                e.Property(x => x.FormSerial).HasColumnName("FORM SERIAL");
+                e.Property(x => x.ControlNumber).HasColumnName("CONTROL NUMBER").HasMaxLength(10);
+
+                e.Property(x => x.ProvisionalAuthority).HasColumnName("PROVISIONAL AUTHORITY").HasMaxLength(255);
+                e.Property(x => x.CertificateOfAuthority).HasColumnName("CERTIFICATE OF AUTHORITY").HasMaxLength(255);
+                e.Property(x => x.Ece).HasColumnName("ECE").HasMaxLength(255);
+                e.Property(x => x.EceLicenseNo).HasColumnName("ECE LICENSE NO").HasMaxLength(255);
+                e.Property(x => x.Technician).HasColumnName("TECHNICIAN").HasMaxLength(255);
+
+                e.Property(x => x.MtrcbPermitNo).HasColumnName("MTRCB PERMIT NO").HasMaxLength(255);
+                e.Property(x => x.MayorsPermitNo).HasColumnName("MAYOR'S PERMIT NO").HasMaxLength(255);
+                e.Property(x => x.Attachment).HasColumnName("ATTACHMENT").HasMaxLength(255);
+                e.Property(x => x.Status).HasColumnName("STATUS").HasMaxLength(255);
+                e.Property(x => x.ContactNumber).HasColumnName("CONTACT NUMBER").HasMaxLength(255);
+                e.Property(x => x.RemarksForModification).HasColumnName("REMARKS for MODIFICATION").HasMaxLength(255);
+
+                e.Property(x => x.Encoder).HasColumnName("Encoder").HasMaxLength(255);
+                e.Property(x => x.Modification).HasColumnName("Modification").HasMaxLength(255);
+
+                e.Property(x => x.ReceiverModel).HasColumnName("ReceiverModel").HasMaxLength(255);
+                e.Property(x => x.ReceiverSerial).HasColumnName("ReceiverSerial").HasMaxLength(255);
+                e.Property(x => x.SatelliteOther).HasColumnName("SatelliteOther").HasMaxLength(255);
+                e.Property(x => x.ReceivedFreqOthers).HasColumnName("ReceivedFreqOthers").HasMaxLength(255);
+                e.Property(x => x.ReceiverSerial2).HasColumnName("ReceiverSerial2").HasMaxLength(255);
+                e.Property(x => x.ReceivedFreqOthers2).HasColumnName("ReceivedFreqOthers2").HasMaxLength(255);
+                e.Property(x => x.ReceivedFreqOthers3).HasColumnName("ReceivedFreqOthers3").HasMaxLength(255);
+                e.Property(x => x.ReceiverSerial3).HasColumnName("ReceiverSerial3").HasMaxLength(255);
+
+                e.Property(x => x.LnaSerial).HasColumnName("LNASerial").HasMaxLength(255);
+                e.Property(x => x.LnaSerial2).HasColumnName("LNA Serial 2").HasMaxLength(255);
+                e.Property(x => x.ReceiverModel2).HasColumnName("ReceiverModel 2").HasMaxLength(255);
+                e.Property(x => x.LnaModel2).HasColumnName("LNA MODEL2").HasMaxLength(255);
+
+                e.Property(x => x.Or).HasColumnName("OR");
+                e.Property(x => x.OrDate2).HasColumnName("OR DATE2");
+                e.Property(x => x.Amount2).HasColumnName("Amount2").HasColumnType("numeric(18,2)");
+
+                e.Property(x => x.IsOpen).HasColumnName("isOpen");
+                e.Property(x => x.IsPrinted).HasColumnName("isPrinted");
+                e.Property(x => x.RoutingRefNo).HasColumnName("RoutingRefNo").HasMaxLength(255);
+
+                e.Property(x => x.RowVer).HasColumnName("RowVer").IsRowVersion();
+            });
+
+            // ============================
+            // RTG - NEWLY ADDED
+            // ============================
+
+            modelBuilder.Entity<LicensingAPI.Entities.AccessRTG>(e =>
+            {
+                e.ToTable("accessRTG", "dbo");
+                e.HasKey(x => x.ID);
+
+                e.Property(x => x.ID).HasColumnName("ID").ValueGeneratedNever();
+
+                e.Property(x => x.Licensee).HasColumnName("LICENSEE").HasMaxLength(255);
+                e.Property(x => x.Address).HasColumnName("ADDRESS").HasMaxLength(255);
+                e.Property(x => x.Province).HasColumnName("PROVINCE").HasMaxLength(255);
+                e.Property(x => x.LicenseNo).HasColumnName("LICENSE NO").HasMaxLength(255);
+
+                e.Property(x => x.Birthday).HasColumnName("BIRTHDAY");
+                e.Property(x => x.Citizenship).HasColumnName("CITIZENSHIP").HasMaxLength(255);
+                e.Property(x => x.Sex).HasColumnName("SEX").HasMaxLength(255);
+                e.Property(x => x.Height).HasColumnName("HEIGHT");
+                e.Property(x => x.Weight).HasColumnName("WEIGHT");
+
+                e.Property(x => x.OfficialReceipt).HasColumnName("OFFICIAL RECEIPT");
+                e.Property(x => x.DatePaid).HasColumnName("DATE PAID");
+                e.Property(x => x.Amount).HasColumnName("AMOUNT").HasColumnType("money");
+
+                e.Property(x => x.DateIssued).HasColumnName("DATE ISSUED");
+                e.Property(x => x.ExpiryDate).HasColumnName("EXPIRY DATE");
+
+                e.Property(x => x.RecommendingApproval).HasColumnName("RECOMMENDING APPROVAL").HasMaxLength(255);
+                e.Property(x => x.RegionalDirector).HasColumnName("REGIONAL DIRECTOR").HasMaxLength(255);
+                e.Property(x => x.Position).HasColumnName("POSITION").HasMaxLength(255);
+                e.Property(x => x.TypeClass).HasColumnName("TYPE/CLASS").HasMaxLength(255);
+
+                e.Property(x => x.DateTaken).HasColumnName("DATE TAKEN").HasColumnType("date");
+                e.Property(x => x.PlaceOfExam).HasColumnName("PLACE OF EXAM").HasMaxLength(255);
+                e.Property(x => x.Rating).HasColumnName("RATING").HasMaxLength(255);
+                e.Property(x => x.Remarks).HasColumnName("REMARKS").HasMaxLength(255);
+                e.Property(x => x.Encoder).HasColumnName("ENCODER").HasMaxLength(255);
+                e.Property(x => x.Note).HasColumnName("NOTE").HasMaxLength(255);
+
+                e.Property(x => x.Userlog).HasColumnName("Userlog").HasMaxLength(255);
+                e.Property(x => x.InsertDate).HasColumnName("InsertDate");
+                e.Property(x => x.LastUpdateUser).HasColumnName("LastUpdateUser").HasMaxLength(255);
+                e.Property(x => x.LastUpdateDate).HasColumnName("LastUpdateDate");
+                e.Property(x => x.AccountableFormNumber).HasColumnName("AccountableFormNumber");
+
+                e.Property(x => x.OfficialReceipt2).HasColumnName("OFFICIAL RECEIPT2");
+                e.Property(x => x.DatePaid2).HasColumnName("DATE PAID2");
+                e.Property(x => x.Amount2).HasColumnName("AMOUNT2").HasColumnType("money");
+
+                e.Property(x => x.AdminCase).HasColumnName("AdminCase").HasColumnType("ntext");
+                e.Property(x => x.AdminCaseRemark).HasColumnName("AdminCaseRemark").HasColumnType("ntext");
+
+                e.Property(x => x.DateInspected).HasColumnName("DateInspected").HasMaxLength(255);
+                e.Property(x => x.InspectionMO).HasColumnName("InspectionMO").HasMaxLength(255);
+
+                e.Property(x => x.IsOpen).HasColumnName("isOpen");
+                e.Property(x => x.IsPrinted).HasColumnName("isPrinted");
+                e.Property(x => x.RoutingRefNo).HasColumnName("RoutingRefNo").HasMaxLength(255);
+
+                e.Property(x => x.RowVer).HasColumnName("RowVer").HasColumnType("varbinary(510)");
             });
 
             // ============================
